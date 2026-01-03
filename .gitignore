@@ -1,0 +1,40 @@
+# Dependencies
+/vendor/
+/node_modules/
+/composer.lock
+/package-lock.json
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Runtime data
+/temp/
+/sessions/
+*.log
+*.tmp
+
+# Database
+*.db
+*.sqlite
+/database/*.sqlite
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# User uploads
+/public/uploads/
+*.cache 
