@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="password" id="password" name="password" 
                                placeholder="Ít nhất 6 ký tự" required>
                         <button type="button" class="toggle-password" id="togglePassword">
-                            <i class="fas fa-eye"></i>
+                            <i class="fas fa-eye eye"></i>
                         </button>
                     </div>
                     <div class="error-message" id="passwordError"></div>
@@ -135,10 +135,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input type="password" id="confirm_password" name="confirm_password" 
                                placeholder="Nhập lại mật khẩu" required>
                         <button type="button" class="toggle-password" id="toggleConfirmPassword">
-                            <i class="fas fa-eye"></i>
+                            <i class="fas fa-eye eye"></i>
                         </button>
                     </div>
-                    <div class="error-message" id="confirmPasswordError"></div>
+                    <div class="error-message" id="confirm_passwordError"></div>
                 </div>
 
                 <div class="form-group checkbox-group">
