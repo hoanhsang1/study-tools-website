@@ -1,8 +1,10 @@
-// public/auth/js/auth.js
-
+// public/auth/js/auth.js - CHỈ CHO REGISTER
 document.addEventListener('DOMContentLoaded', function() {
-    // Elements
+    // Chỉ chạy nếu có registerForm
     const form = document.getElementById('registerForm');
+    if (!form) return; // Thoát nếu không phải trang register
+    
+    // Elements
     const submitBtn = document.getElementById('submitBtn');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const btnText = submitBtn.querySelector('.btn-text');
@@ -17,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const patterns = {
         username: /^[a-zA-Z0-9_]{3,20}$/,
         email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-        password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{6,}$/
+        password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*_#?&]{6,}$/
     };
     // Error messages
     const errorMessages = {
@@ -153,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Form submission
     form.addEventListener('submit', async function(e) {
-        e.preventDefault();
+        e.preventDefault(); // Ngăn form submit HTML
         
         // Validate all fields
         let isValid = true;
@@ -171,19 +173,12 @@ document.addEventListener('DOMContentLoaded', function() {
             if (termsError) {
                 termsError.textContent = errorMessages.terms;
                 termsError.classList.add('show');
-                termsCheckbox.parentElement.classList.add('error-shake');
-                setTimeout(() => {
-                    termsCheckbox.parentElement.classList.remove('error-shake');
-                }, 500);
             }
         }
         
         if (!isValid) {
-            // Shake form on error
             form.classList.add('error-shake');
-            setTimeout(() => {
-                form.classList.remove('error-shake');
-            }, 500);
+            setTimeout(() => form.classList.remove('error-shake'), 500);
             return;
         }
         
@@ -192,23 +187,31 @@ document.addEventListener('DOMContentLoaded', function() {
         btnText.textContent = 'Đang xử lý...';
         loadingSpinner.classList.remove('hidden');
         
-        // Simulate API call (replace with actual fetch)
         try {
-            // In a real app, you would use fetch() to send data to server
-            // const response = await fetch('process_register.php', {
-            //     method: 'POST',
-            //     body: new FormData(form)
-            // });
+            // ✅ CÁCH 1: URL hiện tại (tốt nhất)
+            const formData = new FormData(form);
+            const currentUrl = window.location.href; // Lấy URL hiện tại
             
-            // For now, just simulate delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const response = await fetch(currentUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest' // Đánh dấu là AJAX request
+                }
+            });
             
-            // Show success message
-            showSuccessMessage();
+            if (response.ok) {
+                // Chuyển hướng sau khi thành công
+                window.location.href = 'login.php';
+            } else {
+                // Xử lý lỗi từ server
+                const errorText = await response.text();
+                showErrorMessage('Đăng ký thất bại: ' + errorText);
+            }
             
         } catch (error) {
             console.error('Registration error:', error);
-            showErrorMessage('Có lỗi xảy ra. Vui lòng thử lại.');
+            showErrorMessage('Kết nối thất bại. Vui lòng thử lại.');
         } finally {
             // Reset button state
             submitBtn.disabled = false;
@@ -216,7 +219,8 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingSpinner.classList.add('hidden');
         }
     });
-    
+
+
     // Success message
     function showSuccessMessage() {
         // Create success alert

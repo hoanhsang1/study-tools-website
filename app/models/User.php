@@ -1,7 +1,8 @@
 <?php
 namespace App\Models;
-
+require_once __DIR__ . '/../core/Model.php';
 use App\Core\Model\Model;
+use FFI\Exception;
 
 class User extends Model
 {
@@ -41,27 +42,123 @@ class User extends Model
         return $user !== false;
     }
     
+    // Thêm vào class User trong User.php
+    public function findById($user_id)
+    {
+        try {
+            $sql = "SELECT * FROM user WHERE user_id = :user_id AND is_deleted = 0 LIMIT 1";
+            $stmt = $this->query($sql, ['user_id' => $user_id]);
+            $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            if ($user) {
+                // Đảm bảo có 'id' key
+                $user['user_id'] = $user['user_id'];
+                return $user;
+            }
+            
+            return false;
+            
+        } catch (Exception $e) {
+            error_log("findById error: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function getLastInsertedUser($username)
+    {
+        try {
+            $sql = "SELECT * FROM user WHERE username = :username AND is_deleted = 0 ORDER BY created_at DESC LIMIT 1";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(['username' => $username]);
+            $user = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
+            if ($user) {
+                // Đảm bảo có các key cần thiết
+                if (isset($user['user_id']) && !isset($user['id'])) {
+                    $user['id'] = $user['user_id'];
+                }
+                return $user;
+            }
+            
+            return false;
+            
+        } catch (Exception $e) {
+            error_log("getLastInsertedUser error: " . $e->getMessage());
+            return false;
+        }
+    }
     /**
      * Create user with hashed password - DÙNG create() method từ Base Model
      */
     public function createUser($data)
     {
-        // Hash password nếu có
-        if (isset($data['password'])) {
-            $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-        }
-        
-        // Thêm timestamps nếu chưa có
-        if (!isset($data['created_at'])) {
+        try {
+            error_log("=== CREATE USER DEBUG ===");
+            error_log("Input data: " . print_r($data, true));
+            
+            // ✅ 1. TẠO UUID CHUẨN
+            $data['user_id'] = $this->generateUuid();
+            error_log("Generated UUID: " . $data['user_id']);
+            
+            // ✅ 2. Map field names - CHỈ map full_name → fullname
+            if (isset($data['full_name'])) {
+                $data['fullname'] = $data['full_name'];
+                unset($data['full_name']);
+            }
+            // KHÔNG XÓA username và email!
+            
+            // ✅ 3. Hash password
+            if (isset($data['password'])) {
+                $data['password'] = password_hash($data['password'], PASSWORD_BCRYPT);
+                error_log("Password hashed");
+            }
+            
+            // ✅ 4. Default values
+            if (!isset($data['role'])) {
+                $data['role'] = 'free';
+            }
+            if (!isset($data['is_deleted'])) {
+                $data['is_deleted'] = 0;
+            }
+            
+            // ✅ 5. Thêm timestamps
             $data['created_at'] = date('Y-m-d H:i:s');
-        }
-        if (!isset($data['updated_at'])) {
             $data['updated_at'] = date('Y-m-d H:i:s');
+            
+            error_log("Final data to insert: " . print_r($data, true));
+            
+            // ✅ 6. Insert vào database
+            $result = $this->create($data);
+            
+            if ($result) {
+                error_log("✅ User created successfully: " . $data['username']);
+                
+                // Trả về user data (bao gồm cả user_id)
+                return $data;
+            } else {
+                error_log("❌ Failed to create user");
+                return false;
+            }
+            
+        } catch (Exception $e) {
+            error_log("createUser error: " . $e->getMessage());
+            return false;
         }
-        
-        return $this->create($data);
     }
 
+    private function generateUuid()
+    {
+        if (function_exists('com_create_guid') === true) {
+            return trim(com_create_guid(), '{}');
+        }
+        
+        // Fallback
+        $data = openssl_random_pseudo_bytes(16);
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+        
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
     
     /**
      * Update user password - DÙNG update() method từ Base Model
@@ -159,6 +256,32 @@ class User extends Model
         );
         
         return $result->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    public function authenticate($identifier, $password) {
+        try {
+            // SQL query tìm user bằng username HOẶC email
+            $sql = "SELECT * FROM user 
+                    WHERE (username = :identifier OR email = :identifier) 
+                    AND is_deleted = 0 
+                    LIMIT 1";
+            
+            $stmt = $this->query($sql, ['identifier' => $identifier]);
+            $user = $stmt->fetch();
+            
+            // Kiểm tra nếu user tồn tại và password đúng
+            if ($user && password_verify($password, $user['password'])) {
+                // Xóa password trước khi trả về (bảo mật)
+                unset($user['password']);
+                return $user;
+            }
+            
+            return false;
+            
+        } catch (Exception $e) {
+            error_log("Authentication error: " . $e->getMessage());
+            return false;
+        }
     }
 }
 ?>
