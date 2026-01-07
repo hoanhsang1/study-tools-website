@@ -367,6 +367,10 @@ body {
     animation-delay: -0.16s;
 }
 
+.eye {
+    left: -6px !important;
+}
+
 /* ===== DIVIDER ===== */
 .divider {
     display: flex;
