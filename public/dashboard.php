@@ -1,236 +1,187 @@
 <?php
-// public/dashboard.php
-session_start();
+/**
+ * Dashboard Page
+ */
 
-// ĐƠN GIẢN: Kiểm tra đăng nhập
+// Start session only if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: auth/login.php');
+    header('Location: /Projects/study-tools-website/public/auth/login.php');
     exit();
 }
 
-// Đơn giản hóa: Kiểm tra session timeout (7 ngày)
-if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 7 * 24 * 60 * 60)) {
-    // Session expired
-    session_destroy();
-    header('Location: auth/login.php?session=expired');
-    exit();
-}
+// Set page variables for layout
+$page_title = 'Dashboard';
+$show_breadcrumb = true;
 
-// Cập nhật last activity
-$_SESSION['last_activity'] = time();
-
-// Lấy thông tin user từ session
-$user_id = $_SESSION['user_id'];
-$username = $_SESSION['username'];
-$email = $_SESSION['email'];
-$full_name = $_SESSION['full_name'] ?? 'Người dùng';
-$role = $_SESSION['role'] ?? 'student';
-$subscription_type = $_SESSION['subscription_type'] ?? 'free';
+// Dashboard content
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - StudyHub</title>
-    <style>
-        /* CSS remains the same as previous */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .user-info h1 {
-            color: #333;
-            margin-bottom: 5px;
-            font-size: 28px;
-        }
-        
-        .user-info p {
-            color: #666;
-        }
-        
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .logout-btn:hover {
-            background: #c82333;
-        }
-        
-        .welcome-msg {
-            background: #4a6cf7;
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-        
-        .tool-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            transition: transform 0.3s;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        
-        .tool-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-        }
-        
-        .tool-icon {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #4a6cf7 0%, #6a8cff 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            color: white;
-            font-size: 28px;
-        }
-        
-        .tool-card h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .tool-card p {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .coming-soon {
-            opacity: 0.7;
-            position: relative;
-        }
-        
-        .coming-soon::after {
-            content: 'Sắp ra mắt';
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #ffc107;
-            color: #333;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <!-- Welcome Message -->
-        <?php if (isset($_SESSION['login_success'])): ?>
-        <div class="welcome-msg">
-            <i class="fas fa-check-circle"></i> 
-            Đăng nhập thành công! Chào mừng <?php echo htmlspecialchars($full_name); ?> trở lại.
+<!-- Welcome Card -->
+<div class="card mb-6">
+    <div class="card-header">
+        <h2 class="card-title">Welcome back, <?php echo htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username']); ?>! 👋</h2>
+        <span class="badge badge-primary"><?php echo htmlspecialchars($_SESSION['role'] ?? 'free'); ?> Plan</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="space-y-2">
+            <div class="text-text-secondary text-sm">Study Time Today</div>
+            <div class="text-3xl font-bold text-gradient">2h 30m</div>
+            <div class="text-sm text-text-secondary">+45m from yesterday</div>
         </div>
-        <?php unset($_SESSION['login_success']); endif; ?>
-        
-        <!-- Header -->
-        <div class="header">
-            <div class="user-info">
-                <h1>Xin chào, <?php echo htmlspecialchars($full_name); ?>! 👋</h1>
-                <p><?php echo htmlspecialchars($email); ?> • <?php echo ucfirst($subscription_type); ?> Plan</p>
+        <div class="space-y-2">
+            <div class="text-text-secondary text-sm">Completion Rate</div>
+            <div class="text-3xl font-bold text-gradient">78%</div>
+            <div class="progress">
+                <div class="progress-bar" style="width: 78%"></div>
             </div>
-            <a href="auth/logout.php" class="logout-btn">
-                <i class="fas fa-sign-out-alt"></i> Đăng xuất
-            </a>
         </div>
-        
-        <!-- Tools Grid -->
-        <div class="tools-grid">
-            <!-- Todo List -->
-            <a href="tools/todo.php" class="tool-card">
-                <div class="tool-icon">
-                    <i class="fas fa-tasks"></i>
-                </div>
-                <h3>📝 Todo List</h3>
-                <p>Quản lý công việc học tập với hệ thống 3 cấp</p>
-            </a>
-            
-            <!-- Calendar -->
-            <div class="tool-card coming-soon">
-                <div class="tool-icon">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <h3>📅 Lịch học</h3>
-                <p>Lập kế hoạch và theo dõi lịch trình học tập</p>
+        <div class="space-y-2">
+            <div class="text-text-secondary text-sm">Current Streak</div>
+            <div class="text-3xl font-bold text-gradient">7 days</div>
+            <div class="text-sm text-text-secondary">Keep it up! 🔥</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="card">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-text-secondary text-sm">Pending Todos</div>
+                <div class="text-2xl font-bold">12</div>
             </div>
-            
-            <!-- Pomodoro Timer -->
-            <div class="tool-card coming-soon">
-                <div class="tool-icon">
-                    <i class="fas fa-hourglass-half"></i>
-                </div>
-                <h3>⏱️ Pomodoro Timer</h3>
-                <p>Phương pháp Pomodoro để tập trung học tập</p>
-            </div>
-            
-            <!-- Habit Tracker -->
-            <div class="tool-card coming-soon">
-                <div class="tool-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <h3>💪 Theo dõi thói quen</h3>
-                <p>Xây dựng và duy trì thói quen học tập</p>
-            </div>
-            
-            <!-- Flashcards -->
-            <div class="tool-card coming-soon">
-                <div class="tool-icon">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-                <h3>🧠 Flashcards</h3>
-                <p>Hệ thống ghi nhớ với Spaced Repetition</p>
+            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-primary">
+                    <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </div>
         </div>
     </div>
-</body>
-</html>
+    
+    <div class="card">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-text-secondary text-sm">Upcoming Events</div>
+                <div class="text-2xl font-bold">5</div>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-purple-600">
+                    <path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-text-secondary text-sm">Active Habits</div>
+                <div class="text-2xl font-bold">8</div>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-green-600">
+                    <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="flex items-center justify-between">
+            <div>
+                <div class="text-text-secondary text-sm">Flashcards Due</div>
+                <div class="text-2xl font-bold">24</div>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-orange-600">
+                    <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card mb-6">
+    <div class="card-header">
+        <h2 class="card-title">Recent Activity</h2>
+        <a href="#" class="text-sm text-primary font-medium">View All</a>
+    </div>
+    <div class="space-y-4">
+        <?php
+        $activities = [
+            ['icon' => '✅', 'text' => 'Completed "Math homework" todo', 'time' => '10 minutes ago'],
+            ['icon' => '📚', 'text' => 'Studied with Pomodoro for 25 minutes', 'time' => '1 hour ago'],
+            ['icon' => '📅', 'text' => 'Added "Group meeting" to calendar', 'time' => '2 hours ago'],
+            ['icon' => '💪', 'text' => 'Logged "Morning exercise" habit', 'time' => '5 hours ago'],
+            ['icon' => '🧠', 'text' => 'Reviewed 15 flashcards', 'time' => 'Yesterday'],
+        ];
+        
+        foreach ($activities as $activity):
+        ?>
+        <div class="flex items-center gap-3 p-3 rounded-lg hover:bg-bg-input transition-colors">
+            <div class="w-8 h-8 rounded-full bg-bg-input flex items-center justify-center">
+                <?php echo $activity['icon']; ?>
+            </div>
+            <div class="flex-1">
+                <div class="font-medium"><?php echo $activity['text']; ?></div>
+                <div class="text-sm text-text-secondary"><?php echo $activity['time']; ?></div>
+            </div>
+        </div>
+        <?php endforeach; ?>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div>
+    <h3 class="text-lg font-bold mb-4">Quick Actions</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <a href="/Projects/study-tools-website/public/todo.php" 
+           class="btn btn-secondary flex flex-col items-center justify-center h-24">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="mb-2">
+                <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Add Todo
+        </a>
+        
+        <a href="/Projects/study-tools-website/public/calendar.php" 
+           class="btn btn-secondary flex flex-col items-center justify-center h-24">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="mb-2">
+                <path d="M8 7V3M16 7V3M7 11H17M5 21H19C20.1046 21 21 20.1046 21 19V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V19C3 20.1046 3.89543 21 5 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Add Event
+        </a>
+        
+        <a href="/Projects/study-tools-website/public/pomodoro.php" 
+           class="btn btn-secondary flex flex-col items-center justify-center h-24">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="mb-2">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Start Timer
+        </a>
+        
+        <a href="/Projects/study-tools-website/public/flashcards.php" 
+           class="btn btn-secondary flex flex-col items-center justify-center h-24">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="mb-2">
+                <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Study Cards
+        </a>
+    </div>
+</div>
+<?php
+
+$content = ob_get_clean();
+
+// Include layout
+require_once __DIR__ . '/includes/layout.php';
