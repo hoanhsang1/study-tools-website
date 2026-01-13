@@ -1,0 +1,163 @@
+/* CARD CONTAINER */
+.todo-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+/* SCROLL AREA */
+.card-list {
+  overflow-x: auto;
+  padding: 8px 0 4px 0;
+      width: 910px;
+}
+
+/* HIDE SCROLLBAR BUT KEEP SCROLL */
+.card-list::-webkit-scrollbar {
+  height: 6px;
+}
+.card-list::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 999px;
+}
+
+/* NAV */
+.card-nav {
+  display: flex;
+  gap: 12px;
+  padding: 0 2px;
+}
+
+/* ITEM (PILL TAB) */
+.card-list-item {
+  list-style: none;
+  padding: 6px 16px;
+  font-weight: 500;
+  color: #2d3748;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-list-item:hover {
+  border-color: #cbd5e0;
+}
+
+/* ACTIVE */
+.card-list-item.active {
+  background: #4a6cf7;
+  color: #fff;
+  border-color: #4a6cf7;
+  box-shadow: 0 4px 12px rgba(74,108,247,0.25);
+}
+
+/* input mặc định nhìn như text */
+.edit-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d3748;
+  width: 100%;
+  pointer-events: none; /* ❗ không cho nhập */
+}
+
+/* khi edit */
+.card-list-item.editing {
+  border-color: #4a6cf7;
+  box-shadow: 0 0 0 3px rgba(74,108,247,0.15);
+  background: #fff;
+}
+
+.card-list-item.editing .edit-input {
+  pointer-events: auto; /* cho nhập */
+}
+
+.input-sizer {
+  position: absolute;
+  visibility: hidden;
+  white-space: pre;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+}
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+}
+
+.modal-card {
+  position: relative;
+  max-width: 420px;
+  margin: 15vh auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 16px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  outline: none;
+}
+
+.modal-input:focus {
+  border-color: #4a6cf7;
+  box-shadow: 0 0 0 4px rgba(74,108,247,0.15);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.btn-primary {
+  background: linear-gradient(to right, #4a6cf7, #3a5bd9);
+  color: white;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid #e2e8f0;
+  padding: 8px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}

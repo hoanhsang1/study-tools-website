@@ -14,7 +14,22 @@
         <!-- User Menu -->
         <div class="user-dropdown">
             <div class="user-avatar">
-                <?php echo strtoupper(substr($fullname, 0, 1)); ?>
+                <?php 
+                // Kiểm tra nếu có avatar trong session
+                if (isset($_SESSION['avatar_path']) && !empty($_SESSION['avatar_path'])) {
+                    $avatarPath = $_SESSION['avatar_path'];
+                    // Kiểm tra file tồn tại
+                    if (file_exists($_SERVER['DOCUMENT_ROOT'] . '/Projects/study-tools-website/public/' . $avatarPath)) {
+                        echo '<img src="' . htmlspecialchars($avatarPath) . '" alt="Avatar" class="avatar-img">';
+                    } else {
+                        // Fallback: hiển thị chữ cái đầu
+                        echo strtoupper(substr($fullname, 0, 1));
+                    }
+                } else {
+                    // Không có avatar, hiển thị chữ cái đầu
+                    echo strtoupper(substr($fullname, 0, 1));
+                }
+                ?>
             </div>
             
             <div class="user-menu">
@@ -61,4 +76,12 @@
             </svg>
         </button>
     </div>
+    <style>
+.user-avatar .avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+</style>
 </header>

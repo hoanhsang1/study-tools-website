@@ -45,6 +45,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link rel="stylesheet" href="/Projects/study-tools-website/public/assets/css/layout.css">
     <link rel="stylesheet" href="/Projects/study-tools-website/public/assets/css/components.css">
     <link rel="stylesheet" href="/Projects/study-tools-website/public/assets/css/utilities.css">
+    <link rel="stylesheet" href="/Projects/study-tools-website/public/assets/css/modules/todo.css">
     
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
@@ -87,6 +88,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <!-- JavaScript -->
     <script src="/Projects/study-tools-website/public/assets/js/main.js"></script>
     <script src="/Projects/study-tools-website/public/assets/js/layout.js"></script>
+    <script src="/Projects/study-tools-website/public/assets/js/modules/todolist.js"></script>
     
     <?php if (isset($page_js)): ?>
         <!-- Page-specific JS -->
@@ -101,6 +103,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <?php echo $inline_js; ?>
         </script>
     <?php endif; ?>
+    <div id="app-toast-container"></div>
+
 </body>
 </html>
 

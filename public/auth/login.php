@@ -12,7 +12,11 @@ if (isset($_SESSION['user_id'])) {
 }
 
 require_once __DIR__ . '/../../app/models/User.php';
-use App\Models\User; 
+require_once __DIR__ . '/../../app/models/Users_avatar.php';
+require_once __DIR__ . '/../../app/models/todo/Todolist.php';
+use App\Models\User;
+use App\Models\Users_avatar;
+use App\Models\Todo\Todolist;
 
 $errors = [];
 $email_username = '';
@@ -34,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         try {
             $userModel = new User();
+            $userAvatar = new Users_avatar();
+            $Todolist = new Todolist();
             $user = $userModel->authenticate($email_username, $password);
             
             if ($user) {
@@ -42,11 +48,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_id'] = $user['user_id'] ?? $user['id'] ?? '';
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['email'] = $user['email'];
-                $_SESSION['full_name'] = $user['full_name'] ?? 'Người dùng';
+                $_SESSION['fullname'] = $user['fullname'] ?? 'User';
                 $_SESSION['role'] = $user['role'] ?? 'free';
                 $_SESSION['subscription_type'] = $user['subscription_type'] ?? 'free';
                 $_SESSION['last_activity'] = time();
-                
+                $Avatar = $userAvatar->getAvatar($user['user_id']);
+                $_SESSION['avatar_path'] =  $Avatar;
+                if(!$Todolist->findTodolistByUser($_SESSION['user_id'])) {
+                    $Todolist->createTodolist($_SESSION['user_id']);
+                }
+                $todolist =$Todolist->findTodolistByUser($_SESSION['user_id']);
+                $_SESSION['todolist'] =  $todolist["todolist_id"];
+
                 // Redirect - QUAN TRỌNG: Xóa buffer trước
                 ob_end_clean();
                 header('Location: ../dashboard.php');
@@ -209,9 +222,9 @@ ob_end_flush(); // Hiển thị HTML
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                <button type="submit" class="btn-center h-47 btn btn-primary btn-block" id="submitBtn">
                     <span class="btn-text">Đăng nhập</span>
-                    <div class="spinner hidden" id="loadingSpinner">
+                    <div class="btn-text spinner hidden h-47" id="loadingSpinner">
                         <div class="spinner-dot"></div>
                         <div class="spinner-dot"></div>
                         <div class="spinner-dot"></div>

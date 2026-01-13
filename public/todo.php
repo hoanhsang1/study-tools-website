@@ -3,7 +3,10 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
+require_once __DIR__ . '../../app/models/todo/Todolist.php';
+require_once __DIR__ . '../../app/models/todo/Todolistgroup.php';
+use App\Models\Todo\Todolist;
+use App\Models\Todo\Todolistgroup;
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: /Projects/study-tools-website/public/auth/login.php');
@@ -18,14 +21,55 @@ $show_breadcrumb = true;
 $page_css = []; // Thêm CSS riêng nếu cần
 $page_js = []; // Thêm JS riêng nếu cần
 
+$modelTodolist = new Todolist();
+$modelGroup = new Todolistgroup();
+
+$allGroups = $modelGroup->getAllGroupById($_SESSION['todolist']);
+
 // Page content
 ob_start();
 ?>
+
+<style>
+    .badge {
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #4a5568;
+}
+
+.badge-soft {
+  background: #f8fafc;
+  color: #4a5568;
+}
+
+.badge-medium {
+  background: rgba(74,108,247,0.08);
+  color: #4a6cf7;
+  border-color: rgba(74,108,247,0.2);
+}
+
+.badge-strong {
+  background: #4a6cf7;
+  color: white;
+  border-color: #4a6cf7;
+}
+
+.btn-none {
+        background-color: white;
+    border: none;
+    cursor: pointer;
+}
+
+</style>
 <!-- Todo Header -->
 <div class="card mb-6">
     <div class="card-header">
         <h2 class="card-title">📝 Todo List</h2>
-        <button class="btn btn-primary" id="addTodoBtn">
+        <button class="btn btn-primary" id="addTodoBtn" onclick="openTodoModal()">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="mr-2">
                 <path d="M8 3V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 <path d="M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -33,70 +77,30 @@ ob_start();
             Add Todo
         </button>
     </div>
+    <div class="card-list">
+        <ul id="groupList" class="card-nav">
+            <?php
+                foreach ($allGroups as $group) {
+                    $title = htmlspecialchars($group['title']);
+                    $id = htmlspecialchars($group['group_id']);
+
+                    echo '
+                        <li data-id='.$id.' class="card-list-item">
+                            <span class="label">' . $title . '</span>
+
+                            <input class="edit-input" type="text" value="' . $title . '" hidden />
+
+                            <div class="actions">
+                                <button class="icon-btn" onclick="enableEdit(this)">✏️</button>
+                                <button class="icon-btn" onclick="deleteItem(this)">🗑</button>
+                            </div>
+                        </li>';
+                }
+            ?>
+        </ul>
+    </div>
 </div>
 
-<!-- Todo Stats -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-    <div class="card">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="text-text-secondary text-sm">Total</div>
-                <div class="text-2xl font-bold">24</div>
-            </div>
-            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="text-primary">
-                    <path d="M5 3H15C16.1046 3 17 3.89543 17 5V15C17 16.1046 16.1046 17 15 17H5C3.89543 17 3 16.1046 3 15V5C3 3.89543 3.89543 3 5 3Z" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M7 10L9 12L13 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-    
-    <div class="card">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="text-text-secondary text-sm">Completed</div>
-                <div class="text-2xl font-bold">12</div>
-            </div>
-            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="text-green-600">
-                    <path d="M16.6667 5L7.50004 14.1667L3.33337 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-    
-    <div class="card">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="text-text-secondary text-sm">Pending</div>
-                <div class="text-2xl font-bold">8</div>
-            </div>
-            <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="text-orange-600">
-                    <path d="M10 5V10L13.3333 11.6667" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="currentColor" stroke-width="2"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-    
-    <div class="card">
-        <div class="flex items-center justify-between">
-            <div>
-                <div class="text-text-secondary text-sm">Overdue</div>
-                <div class="text-2xl font-bold">4</div>
-            </div>
-            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" class="text-red-600">
-                    <path d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z" stroke="currentColor" stroke-width="2"/>
-                    <path d="M10 6V11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M10 14H10.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Todo List -->
 <div class="card">
@@ -123,16 +127,16 @@ ob_start();
                 
                 foreach ($todos as $todo):
                     $priority_class = [
-                        'high' => 'bg-red-100 text-red-800',
-                        'medium' => 'bg-orange-100 text-orange-800',
-                        'low' => 'bg-blue-100 text-blue-800'
-                    ][$todo['priority']] ?? 'bg-gray-100 text-gray-800';
-                    
-                    $status_class = [
-                        'pending' => 'bg-yellow-100 text-yellow-800',
-                        'in_progress' => 'bg-blue-100 text-blue-800',
-                        'completed' => 'bg-green-100 text-green-800'
-                    ][$todo['status']] ?? 'bg-gray-100 text-gray-800';
+                        'high' => 'badge badge-strong',
+                        'medium' => 'badge badge-medium',
+                        'low' => 'badge badge-soft'
+                        ][$todo['priority']] ?? 'badge';
+
+                        $status_class = [
+                        'pending' => 'badge badge-soft',
+                        'in_progress' => 'badge badge-medium',
+                        'completed' => 'badge badge-strong'
+                        ][$todo['status']] ?? 'badge';
                 ?>
                 <tr class="border-b border-border hover:bg-bg-input">
                     <td class="p-4">
@@ -156,12 +160,12 @@ ob_start();
                     </td>
                     <td class="p-4">
                         <div class="flex space-x-2">
-                            <button class="p-1 text-text-secondary hover:text-primary">
+                            <button class="btn-none p-1 text-text-secondary hover:text-primary">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                     <path d="M11.3333 2.00001C11.5084 1.82492 11.7163 1.68601 11.9452 1.59075C12.1741 1.4955 12.4197 1.44568 12.668 1.44401C12.9162 1.44234 13.1625 1.48884 13.3928 1.58091C13.6232 1.67298 13.8331 1.80886 14.0107 1.98093C14.1882 2.153 14.3299 2.35777 14.4275 2.58352C14.5251 2.80926 14.5765 3.05152 14.5787 3.29668C14.5809 3.54185 14.5339 3.78501 14.4403 4.01237C14.3467 4.23973 14.2083 4.44684 14.0333 4.62223L6.59999 12L2.66666 13.3333L3.99999 9.40001L11.3333 2.00001Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                             </button>
-                            <button class="p-1 text-text-secondary hover:text-red-600">
+                            <button class="btn-none p-1 text-text-secondary hover:text-red-600">
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                                     <path d="M2 4H3.33333H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M5.33331 4V2.66667C5.33331 2.31305 5.47379 1.97391 5.72384 1.72386C5.97389 1.47381 6.31303 1.33334 6.66665 1.33334H9.33331C9.68693 1.33334 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6666 2.31305 10.6666 2.66667V4M12.6666 4V13.3333C12.6666 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.6869 14.6667 11.3333 14.6667H4.66665C4.31303 14.6667 3.97389 14.5262 3.72384 14.2761C3.47379 14.0261 3.33331 13.687 3.33331 13.3333V4H12.6666Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -176,33 +180,28 @@ ob_start();
     </div>
 </div>
 
-<!-- Add Todo Modal (Placeholder) -->
-<div class="hidden" id="addTodoModal">
-    <!-- Modal content will go here -->
+<div id="addTodoModal" class="modal hidden">
+  <div class="modal-overlay" onclick="closeTodoModal()"></div>
+
+  <div class="modal-card">
+    <h3 class="modal-title">Add new group</h3>
+
+    <input 
+      id="todoInput"
+      type="text"
+      placeholder="Enter group name..."
+      class="modal-input"
+    />
+
+    <div class="modal-actions">
+      <button onclick="closeTodoModal()" class="btn-ghost">Cancel</button>
+      <button onclick="createTodo()" class="btn-primary">Create</button>
+    </div>
+  </div>
 </div>
 
-<script>
-// Inline JavaScript for this page
-document.addEventListener('DOMContentLoaded', function() {
-    // Add todo button click handler
-    document.getElementById('addTodoBtn').addEventListener('click', function() {
-        alert('Add todo functionality will be implemented here!');
-        // You can implement a modal or form here
-    });
-    
-    // Todo checkbox toggle
-    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const taskText = this.closest('tr').querySelector('span');
-            if (this.checked) {
-                taskText.classList.add('line-through', 'text-text-secondary');
-            } else {
-                taskText.classList.remove('line-through', 'text-text-secondary');
-            }
-        });
-    });
-});
-</script>
+
+
 <?php
 
 $content = ob_get_clean();

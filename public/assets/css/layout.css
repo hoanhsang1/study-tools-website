@@ -198,8 +198,8 @@
 }
 
 .user-avatar {
-  width: 36px;
-  height: 36px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: var(--gradient-primary);
   color: white;
@@ -375,5 +375,70 @@
   
   .page-title {
     font-size: 1.25rem;
+  }
+}
+
+/* TOAST CONTAINER */
+#app-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* TOAST BASE */
+.app-toast {
+  min-width: 280px;
+  max-width: 360px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+  border: 1px solid #e2e8f0;
+
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  color: #2d3748;
+
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  animation: toast-in 0.3s ease forwards;
+}
+
+/* ERROR */
+.app-toast.error {
+  background: #fff5f5;
+  border-left: 4px solid #e53e3e;
+  color: #c53030;
+}
+
+/* SUCCESS */
+.app-toast.success {
+  background: #f0fff4;
+  border-left: 4px solid #38a169;
+  color: #2f855a;
+}
+
+/* ANIMATION */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
   }
 }

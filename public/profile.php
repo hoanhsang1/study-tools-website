@@ -10,6 +10,22 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
+// Load avatar từ database
+$avatarPath = null;
+try {
+    require_once __DIR__ . '../../app/models/Users_avatar.php';
+    $avatarModel = new App\Models\Users_avatar();
+    $avatarPath = $avatarModel->getAvatar($_SESSION['user_id']);
+    
+    // Kiểm tra file tồn tại
+    if ($avatarPath && !file_exists(__DIR__ . '/' . $avatarPath)) {
+        $avatarPath = null;
+    }
+} catch (Exception $e) {
+    // Nếu có lỗi, dùng session
+    $avatarPath = $_SESSION['avatar_path'] ?? null;
+}
+
 // Set page variables for layout
 $page_title = 'Profile';
 $show_breadcrumb = true;
@@ -21,6 +37,25 @@ ob_start();
 <!-- ==================== -->
 <!--     PAGE CONTENT     -->
 <!-- ==================== -->
+<!-- Flash Messages -->
+<?php if (isset($_SESSION['success'])): ?>
+<div class="alert alert-success mb-6">
+    <?php 
+    echo htmlspecialchars($_SESSION['success']);
+    unset($_SESSION['success']);
+    ?>
+</div>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+<div class="alert alert-error mb-6">
+    <?php 
+    echo htmlspecialchars($_SESSION['error']);
+    unset($_SESSION['error']);
+    ?>
+</div>
+<?php endif; ?>
+
 <style>
 .profil {
     display: flex !important;
@@ -38,20 +73,83 @@ ob_start();
     margin-right: 60px;
 }
 
-.inline {
-    display: inline-block !important;
+.upload_form {
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    position: absolute;
+    border-radius: 50% !important;
+    height: 150px;
+    width: 150px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.avatar-container {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    color: white;
+    font-size: 14px;
+}
+
+.avatar-container:hover .avatar-overlay {
+    opacity: 1;
 }
 </style>
+
 <div class="space-y-6">
     <!-- Profile Header -->
     <div class="card">
         <div class="p-6">
             <div class="profil flex flex-col md:flex-row items-start md:items-center gap-6">
                 <!-- Avatar -->
-                <div class="relative">
-                    <div class="profile_avatar w-20 h-20 rounded-full bg-gradient-primary flex items-center justify-center text-white text-2xl font-bold shadow-md">
-                        <?php echo strtoupper(substr($_SESSION['fullname'] ?? $_SESSION['username'], 0, 1)); ?>
+                <div class="avatar-container">
+                    <div class="profile_avatar w-20 h-20 rounded-full bg-gradient-primary flex items-center justify-center text-white text-2xl font-bold shadow-md cursor-pointer relative overflow-hidden">
+                        
+                        <!-- Nếu có ảnh avatar thì hiển thị ảnh, không thì hiển thị chữ cái đầu -->
+                        <?php if($avatarPath && file_exists(__DIR__ . '/' . $avatarPath)): ?>
+                            <img src="<?php echo htmlspecialchars($avatarPath); ?>" 
+                                alt="Avatar" 
+                                class="w-full h-full rounded-full object-cover"
+                                id="avatarImage">
+                        <?php else: ?>
+                            <span id="avatarInitial"><?php echo strtoupper(substr($_SESSION['fullname'] ?? $_SESSION['username'] ?? 'U', 0, 1)); ?></span>
+                        <?php endif; ?>
+                        
+                        <!-- Form upload -->
+                        <form id="avatarForm" action="upload.php" method="POST" enctype="multipart/form-data" class="upload_form">
+                            <input type="file" 
+                                name="avatar" 
+                                id="avatarInput" 
+                                accept="image/*"
+                                class="hidden">
+                        </form>
+                        
+                        <!-- Hover overlay -->
+                        <div class="avatar-overlay">
+                            <span>Change Avatar</span>
+                        </div>
                     </div>
+                    
+                    <!-- Online status -->
                     <div class="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-white border-2 border-white shadow-sm">
                         <div class="w-full h-full rounded-full bg-green-500 flex items-center justify-center">
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -198,3 +296,45 @@ $content = ob_get_clean();
 // Include layout
 require_once __DIR__ . '/includes/layout.php';
 ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarContainer = document.querySelector('.avatar-container');
+    const avatarInput = document.getElementById('avatarInput');
+    const avatarForm = document.getElementById('avatarForm');
+    
+    // Click vào avatar để chọn file
+    avatarContainer.addEventListener('click', function() {
+        avatarInput.click();
+    });
+    
+    // Khi chọn file
+    avatarInput.addEventListener('change', function(e) {
+        if (this.files && this.files[0]) {
+            // Hiển thị preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const avatarImage = document.getElementById('avatarImage');
+                const avatarInitial = document.getElementById('avatarInitial');
+                
+                if (avatarImage) {
+                    avatarImage.src = e.target.result;
+                } else {
+                    // Tạo img nếu chưa có
+                    if (avatarInitial) avatarInitial.remove();
+                    avatarContainer.querySelector('.profile_avatar').innerHTML = 
+                        `<img src="${e.target.result}" alt="Preview" class="w-full h-full rounded-full object-cover" id="avatarImage">`;
+                }
+                
+                // Hiển thị loading text
+                const overlay = avatarContainer.querySelector('.avatar-overlay');
+                overlay.innerHTML = '<span>Đang tải lên...</span>';
+            };
+            reader.readAsDataURL(this.files[0]);
+            
+            // Submit form
+            avatarForm.submit();
+        }
+    });
+});
+</script>

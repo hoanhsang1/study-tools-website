@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
             passwordInput.setAttribute('type', type);
             const icon = this.querySelector('i');
             if (icon) {
-                icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+                icon.className = type === 'password' ? 'fas fa-eye eye' : 'fas fa-eye-slash eye';
             }
         });
     }
