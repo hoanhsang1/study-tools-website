@@ -10,7 +10,7 @@ ini_set('display_errors', 1);
 // Nếu đã login
 if (isset($_SESSION['user_id'])) {
     ob_end_clean();
-    header('Location: ../dashboard.php');
+    header('Location: dashboard');
     exit();
 }
 
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     // REDIRECT đến dashboard
                     ob_end_clean();
-                    header('Location: ../dashboard.php');
+                    header('Location: dashboard');
                     exit();
                     
                 } else {
@@ -260,7 +260,7 @@ ob_end_flush();
             </form>
 
             <div class="auth-footer">
-                <p>Đã có tài khoản? <a href="login.php" class="link">Đăng nhập ngay</a></p>
+                <p>Đã có tài khoản? <a href="/auth/login" class="link">Đăng nhập ngay</a></p>
             </div>
         </div>
     </div>

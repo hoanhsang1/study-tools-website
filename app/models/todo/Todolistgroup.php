@@ -1,6 +1,7 @@
 <?php
 namespace App\Models\Todo;
 require_once __DIR__ . '/../../core/Model.php';
+require_once __DIR__ . '/Todolist.php';
 use App\Models\Todo\Todolist;
 use FFI\Exception;
 use PDO;
@@ -9,7 +10,7 @@ class Todolistgroup extends Todolist {
     protected $primaryKey = 'group_id';
 
     public function getAllGroupById($todolist) {
-        $sql = "SELECT * FROM {$this->table} WHERE todolist_id = ?";
+        $sql = "SELECT * FROM {$this->table} WHERE todolist_id = ? && is_deleted = 0 ";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([$todolist]);
 

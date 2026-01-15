@@ -5,7 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /Projects/study-tools-website/public/auth/login.php');
+    header('Location: /auth/login');
     exit();
 }
 
@@ -15,14 +15,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar'])) {
     // 1. Kiểm tra lỗi upload
     if ($file['error'] !== UPLOAD_ERR_OK) {
         $_SESSION['error'] = "Lỗi upload file!";
-        header("Location: profile.php");
+        header("Location: /profile");
         exit();
     }
     
     // 2. Kiểm tra kích thước (max 2MB)
     if ($file['size'] > 2000000) {
         $_SESSION['error'] = "File quá lớn! Tối đa 2MB.";
-        header("Location: profile.php");
+        header("Location: /profile");
         exit();
     }
     
@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar'])) {
     
     if (!in_array($extension, $allowedExtensions)) {
         $_SESSION['error'] = "Chỉ chấp nhận ảnh JPG, PNG, GIF!";
-        header("Location: profile.php");
+        header("Location: /profile");
         exit();
     }
     
@@ -80,11 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['avatar'])) {
         $_SESSION['error'] = "Không thể lưu file!";
     }
     
-    header("Location: profile.php");
+    header("Location: /profile");
     exit();
 }
 
 // Nếu không phải POST request
-header("Location: profile.php");
+header("Location: /profile");
 exit();
 ?>

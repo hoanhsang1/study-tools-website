@@ -7,7 +7,7 @@ session_start();
 // Check if user is already logged in
 if (isset($_SESSION['user_id'])) {
     ob_end_clean();
-    header('Location: ../dashboard.php');
+    header('Location: dashboard');
     exit();
 }
 
@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 // Redirect - QUAN TRỌNG: Xóa buffer trước
                 ob_end_clean();
-                header('Location: ../dashboard.php');
+                header('Location: /dashboard');
                 exit();
             } else {
                 $errors['general'] = 'Email/tên đăng nhập hoặc mật khẩu không đúng';
@@ -238,7 +238,7 @@ ob_end_flush(); // Hiển thị HTML
             <div class="auth-footer">
                 <p>
                     Chưa có tài khoản? 
-                    <a href="register.php" class="link">Đăng ký ngay</a>
+                    <a href="/auth/register" class="link">Đăng ký ngay</a>
                 </p>
                 <p class="copyright">
                     &copy; 2024 StudyHub. All rights reserved.

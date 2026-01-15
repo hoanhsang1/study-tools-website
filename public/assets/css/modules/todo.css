@@ -32,60 +32,54 @@
 /* ITEM (PILL TAB) */
 .card-list-item {
   list-style: none;
-  padding: 6px 16px;
-  font-weight: 500;
-  color: #2d3748;
+  display: inline-flex;
+  align-items: center;
+
+  padding: 6px 14px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 999px;
   white-space: nowrap;
-  cursor: pointer;
+  position: relative;
   transition: all 0.2s ease;
+  cursor: text;
 }
 
 .card-list-item:hover {
   border-color: #cbd5e0;
 }
 
-/* ACTIVE */
-.card-list-item.active {
-  background: #4a6cf7;
-  color: #fff;
-  border-color: #4a6cf7;
-  box-shadow: 0 4px 12px rgba(74,108,247,0.25);
-}
-
-/* input mặc định nhìn như text */
+/* INPUT = TEXT */
 .edit-input {
   border: none;
   background: transparent;
   outline: none;
-  font-size: 14px;
+
+  font-size: 18px;
   font-weight: 500;
   color: #2d3748;
-  width: 100%;
-  pointer-events: none; /* ❗ không cho nhập */
+  font-family: Roboto, sans-serif;
+  width: auto;              /* 🔥 QUAN TRỌNG */
+  min-width: 12px;
 }
 
-/* khi edit */
+/* EDITING */
 .card-list-item.editing {
+  background: #ffffff;
   border-color: #4a6cf7;
   box-shadow: 0 0 0 3px rgba(74,108,247,0.15);
-  background: #fff;
 }
 
-.card-list-item.editing .edit-input {
-  pointer-events: auto; /* cho nhập */
-}
-
+/* SIZER */
 .input-sizer {
   position: absolute;
   visibility: hidden;
   white-space: pre;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 500;
-  font-family: inherit;
+  font-family: Roboto, sans-serif;
 }
+
 .modal {
   position: fixed;
   inset: 0;

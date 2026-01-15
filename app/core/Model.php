@@ -79,6 +79,12 @@ class Model
         $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE {$this->primaryKey} = ?");
         return $stmt->execute([$id]);
     }
+
+    public function softDelete($id)
+    {
+        $stmt = $this->db->prepare("UPDATE {$this->table} SET is_deleted = 1 WHERE {$this->primaryKey} = ?");
+        return $stmt->execute([$id]);
+    }
     
     public function query($sql, $params = [])
     {

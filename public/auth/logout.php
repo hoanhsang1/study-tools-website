@@ -9,6 +9,6 @@ $_SESSION = [];
 session_destroy();
 
 // Redirect về trang login
-header('Location: login.php?logout=success');
+header('Location: /login?logout=success');
 exit();
 ?>

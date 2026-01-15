@@ -14,7 +14,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header('Location: /Projects/study-tools-website/public/auth/login.php');
+    header('Location: /auth/login.php');
     exit();
 }
 
@@ -41,11 +41,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="/Projects/study-tools-website/public/assets/css/main.css">
-    <link rel="stylesheet" href="/Projects/study-tools-website/public/assets/css/layout.css">
-    <link rel="stylesheet" href="/Projects/study-tools-website/public/assets/css/components.css">
-    <link rel="stylesheet" href="/Projects/study-tools-website/public/assets/css/utilities.css">
-    <link rel="stylesheet" href="/Projects/study-tools-website/public/assets/css/modules/todo.css">
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/layout.css">
+    <link rel="stylesheet" href="/assets/css/components.css">
+    <link rel="stylesheet" href="/assets/css/utilities.css">
+    <link rel="stylesheet" href="/assets/css/modules/todo.css">
     
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
@@ -71,7 +71,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <div class="content-area">
                 <?php if (isset($show_breadcrumb) && $show_breadcrumb): ?>
                 <div class="breadcrumb">
-                    <a href="/Projects/study-tools-website/public/dashboard.php" class="text-primary">Dashboard</a>
+                    <a href="/dashboard.php" class="text-primary">Dashboard</a>
                     <span class="text-text-secondary">/</span>
                     <span class="text-text-secondary"><?php echo htmlspecialchars($page_title ?? 'Page'); ?></span>
                 </div>
@@ -86,9 +86,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
     </div>
     
     <!-- JavaScript -->
-    <script src="/Projects/study-tools-website/public/assets/js/main.js"></script>
-    <script src="/Projects/study-tools-website/public/assets/js/layout.js"></script>
-    <script src="/Projects/study-tools-website/public/assets/js/modules/todolist.js"></script>
+    <script src="/assets/js/main.js"></script>
+    <script src="/assets/js/layout.js"></script>
+    <script src="/assets/js/modules/todolist.js"></script>
     
     <?php if (isset($page_js)): ?>
         <!-- Page-specific JS -->

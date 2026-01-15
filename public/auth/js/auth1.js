@@ -202,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (response.ok) {
                 // Chuyển hướng sau khi thành công
-                window.location.href = 'login.php';
+                window.location.href = '/auth/login';
             } else {
                 // Xử lý lỗi từ server
                 const errorText = await response.text();
