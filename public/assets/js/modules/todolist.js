@@ -91,13 +91,13 @@ function closeTodoModal() {
 	inputForm.value = ''
 }
 
-function saveTodo() {
-	const value = document.getElementById("todoInput").value.trim();
-	if (!value) return;
+// function saveTodo() {
+// 	const value = document.getElementById("todoInput").value.trim();
+// 	if (!value) return;
 
-	alert("New group: " + value); // sau này thay bằng AJAX
-	closeTodoModal();
-}
+// 	alert("New group: " + value); // sau này thay bằng AJAX
+// 	closeTodoModal();
+// }
 
 
 function renderGroup(group) {
@@ -105,7 +105,7 @@ function renderGroup(group) {
 	
 	const li = document.createElement("li");
 	li.className = "card-list-item";
-	li.dataset.id = group.group_id || group.todolist_id;
+	li.dataset.id = group.group_id;
 	li.setAttribute("data-editable", "");
 	
 	li.innerHTML = `
@@ -171,6 +171,12 @@ function renderGroup(group) {
 			input.blur();
 		}
 	});
+
+    li.addEventListener("click", () => {
+        const groupId = li.dataset.id;
+        currentGroupId = groupId;
+        getAllTask(groupId);
+    });
 }
 
 async function createTodo() {
@@ -359,11 +365,24 @@ function renderAllTask(tasks) {
 
 }
 
+function refreshGroupSelect() {
+  const select = document.getElementById("taskGroup");
+  select.innerHTML = "";
+  document.querySelectorAll("#groupList li").forEach(li => {
+     const opt = document.createElement("option");
+     opt.value = li.dataset.id;
+     opt.textContent = li.querySelector(".edit-input").value;
+     select.appendChild(opt);
+  });
+}
+
+
 function openTaskModal(isEdit = false) {
     if (!isEdit && !currentGroupId) {
         showToast("Please select a group first", "error");
         return;
     }
+    refreshGroupSelect();
 	console.log("open modal", isEdit, currentGroupId);
     document.getElementById("addTaskModal").classList.remove("hidden");
 }
@@ -386,7 +405,6 @@ async function createTask() {
         showToast("Task name is required","error")
         return;
     }
-    
     const params = new URLSearchParams();
     params.append('action', 'createTask');
     params.append('title', title);
@@ -636,7 +654,7 @@ function openAddModal() {
     showToast("Please select a group first", "error");
     return;
   }
-
+  refreshGroupSelect();
   editingTaskId = null;
 
   taskTitle.value = "";
@@ -661,7 +679,7 @@ async function openEditModal(taskId) {
     showToast(json.error, "error");
     return;
   }
-
+  refreshGroupSelect()
   const task = json.task;
   editingTaskId = taskId;
 

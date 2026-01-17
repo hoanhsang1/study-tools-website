@@ -138,7 +138,7 @@ ob_start();
   <div class="modal-overlay" onclick="closeTodoModal()"></div>
 
   <div class="modal-card">
-    <h3 class="modal-title">Add new group</h3>
+    <h3 class="modal-title mb-8">Add new group</h3>
 
     <input 
       id="todoInput"
