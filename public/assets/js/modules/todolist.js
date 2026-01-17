@@ -628,6 +628,7 @@ let editingTaskId = null;
 
 const modal = document.getElementById("addTaskModal");
 const submitBtn = document.getElementById("submitTaskBtn");
+const editModalTitle = document.getElementById("modalTitle");
 
 // ===== OPEN MODAL FOR CREATE =====
 function openAddModal() {
@@ -646,6 +647,7 @@ function openAddModal() {
   taskGroup.value = currentGroupId;
 
   submitBtn.textContent = "Create Task";
+  editModalTitle.textContent = "Add New Task";
 
   modal.classList.remove("hidden");
 }
@@ -671,6 +673,7 @@ async function openEditModal(taskId) {
   taskGroup.value = task.group_id ?? currentGroupId;
 
   submitBtn.textContent = "Save";
+  editModalTitle.textContent = "Task Details";
 
   modal.classList.remove("hidden");
 }
@@ -692,4 +695,19 @@ submitBtn.addEventListener("click", async () => {
 
 document.addEventListener("click", e => {
   console.log("clicked element:", e.target);
+});
+
+document.addEventListener("click", (e) => {
+  // Nếu click vào menu, button, checkbox → bỏ qua
+  if (
+    e.target.closest(".task-action-btn") ||
+    e.target.closest(".task-menu") ||
+    e.target.classList.contains("task-checkbox")
+  ) return;
+
+  const tr = e.target.closest("tr[data-id]");
+  if (!tr) return;
+
+  const taskId = tr.dataset.id;
+  openEditModal(taskId);
 });

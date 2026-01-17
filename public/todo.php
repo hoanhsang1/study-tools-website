@@ -158,8 +158,11 @@ ob_start();
 <div id="addTaskModal" class="modal hidden">
     <div class="modal-overlay" onclick="closeTaskModal()"></div>
     <div class="modal-card" style="max-width: 500px;">
-        <h3 class="modal-title">Add New Task</h3>
-        <div class="space-y-4">
+        <div class="modal-header">
+            <h3 class="modal-title" id="modalTitle">Add New Task</h3>
+            <button class="modal-close" onclick="closeTaskModal()">✕</button>
+        </div>
+        <div class="modal-body space-y-4">
             <div>
                 <label class="form-label">Task Name *</label>
                 <input 
