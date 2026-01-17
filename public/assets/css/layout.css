@@ -81,6 +81,7 @@
   height: fit-content;
   position: sticky;
   top: calc(64px + var(--space-8));
+  width: 20%;
 }
 
 .nav-section {
@@ -155,6 +156,7 @@
   padding: var(--space-8);
   box-shadow: var(--shadow-lg);
   min-height: 600px;
+  width: 60%;
 }
 
 .content-header {

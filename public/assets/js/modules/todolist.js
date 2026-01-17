@@ -1,4 +1,5 @@
 const inputForm = document.getElementById("todoInput")
+
 // Inline JavaScript for this page
 document.addEventListener('DOMContentLoaded', function() {
 		// Add todo button click handler
@@ -18,11 +19,13 @@ document.addEventListener('DOMContentLoaded', function() {
 						}
 				});
 		});
+		//changeStatusClick()
 });
 
 document.querySelectorAll('[data-editable]').forEach(item => {
 	const input = item.querySelector('.edit-input')
 	const sizer = item.querySelector('.input-sizer')
+    const currentValue = input.value
 
 	const resize = () => {
 		sizer.textContent = input.value || ' '
@@ -42,25 +45,29 @@ document.querySelectorAll('[data-editable]').forEach(item => {
 		input.removeAttribute('readonly')
 		input.focus()
 		input.select()
+        
 	})
 
 	const save = async () => {
 		const value = input.value.trim()
-		const id = item.dataset.id
-		console.log(item.dataset, item.getAttribute("data-id"))
-		// XOÁ HẾT → DELETE
-		if (value === '') {
-			await deleteGroup(id)
-			item.remove()
-			return
-		}
+        const id = item.dataset.id
+        console.log(item.dataset, item.getAttribute("data-id"))
+        // XOÁ HẾT → DELETE
+        if (value === '') {
+            await deleteGroup(id)
+            item.remove()
+            return
+        }
 
-		input.value = value
-		input.setAttribute('readonly', true)
-		item.classList.remove('editing')
-		resize()
+        input.value = value
+        input.setAttribute('readonly', true)
+        item.classList.remove('editing')
+        resize()
 
-		await updateGroup(id, value)
+        if (value!==currentValue) {
+
+            await updateGroup(id, value)
+        }
 	}
 
 	input.addEventListener('blur', save)
@@ -194,6 +201,7 @@ async function createTodo() {
 		if (data.success) {
 				renderGroup(data.group);
 				closeTodoModal();
+                showToast("Đã tạo Group thành công","success")
 		} else {
 				showToast(data.error || "Error")
 		}
@@ -219,6 +227,7 @@ async function updateGroup(id,title) {
 
 	if (data.success) {
 		renderGroup(data.group) 
+        showToast("Đã chỉnh sữa Group thành công","success")
 	} else {
 		showToast(data.error || "Error")
 	}
@@ -243,82 +252,444 @@ async function deleteGroup(id) {
 	}
 
 	if (data.success) {
+        showToast("Đã xoá Group thành công","success")
 		return data.success === true
+
 	} else {
 		showToast(data.error || "Error")
 	}
 }
-
+// Other functions (keep from your existing todolist.js)
+let currentGroupId = null;
 async function getAllTask(id) {
-	const res = await fetch ("/todo/api/task", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/x-www-form-urlencoded"
-
-		},
-		body: `action=getAllTask&groupId=`+encodeURIComponent(id)
-	})
-	let data;
-	try {
-		data=await res.json();
-	} catch (e) {
-		console.error("Server returned non-JSON");
-		console.log(await res.text());
-		return;
-	}
-
-	if (data.success) {
-		renderAllTask(data.AllTask) 
-	} else {
-		showToast(data.error || "Error")
-	}
+    try {
+        const res = await fetch(`/todo/api/task?groupId=${encodeURIComponent(id)}`, {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            renderAllTask(data.tasks || []);
+            currentGroupId=id
+        } else {
+            showToast(data.error || "Error loading tasks");
+        }
+    } catch (e) {
+        console.error("Error:", e);
+        showToast("Network error");
+    }
 }
 
 function renderAllTask(tasks) {
 	const tbody = document.querySelector("table tbody")
 	tbody.innerHTML = ""
 
-	tasks.forEach(todo => {
-		const tr = document.createElement("tr")
-		tr.className = "border-b border-border hover:bg-bg-input"
+    if (tasks.length === 0) {
+        // Nếu là empty array - không có task
+        tbody.innerHTML = `
+            <tr class="task-row">
+                <td colspan="5">
+                    <div class="empty-state-content">
+                        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        <p class="empty-state-text">No tasks yet. Click "Add Task" to create one.</p>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    } else {
 
-		const priorityClass = {
-			high: "badge badge-strong",
-			medium: "badge badge-medium",
-			low: "badge badge-soft"
-		}[todo.priority] || "badge"
+        tasks.forEach(todo => {
+            const tr = document.createElement("tr")
+            tr.className = "border-b border-border hover:bg-bg-input"
+    
+            const priorityClass = {
+                high: "badge badge-strong",
+                medium: "badge badge-medium",
+                low: "badge badge-soft"
+            }[todo.priority] || "badge"
+    
+            const statusClass = {
+                pending: "badge badge-soft",
+                in_progress: "badge badge-medium",
+                completed: "badge badge-strong",
+                overdue: "badge badge-warning"
+            }[todo.status] || "badge"
+    
+            tr.innerHTML = `
+                <td class="p-4">
+                    <div class="flex items-center">
+                        <input data-id="${todo.task_id}" type="checkbox" class="task-checkbox mr-3 h-5 w-5 rounded border-border" ${todo.status === "completed" ? "checked" : ""}>
+                        <span class="${todo.status === "completed" ? "line-through text-text-secondary" : ""}">
+                            ${todo.title}
+                        </span>
+                    </div>
+                </td>
+                <td class="p-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityClass}">
+                        ${todo.priority}
+                    </span>
+                </td>
+                <td class="p-4 text-text">${todo.deadline}</td>
+                <td class="p-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
+                        ${todo.status.replace("_", " ")}
+                    </span>
+                </td>
+                <td class="p-4 relative">
+					<button class="task-action-btn" data-id="${todo.task_id}">⋯</button>
 
-		const statusClass = {
-			pending: "badge badge-soft",
-			in_progress: "badge badge-medium",
-			completed: "badge badge-strong"
-		}[todo.status] || "badge"
+					<ul class="task-menu hidden">
+						<li class="task-edit" data-id="${todo.task_id}">Edit</li>
+						<li class="task-delete">Delete</li>
+					</ul>
+				</td>
+            `
+			tr.dataset.id = todo.task_id
+            tbody.appendChild(tr)
+        })
+		//changeStatusClick();
+    }
 
-		tr.innerHTML = `
-			<td class="p-4">
-				<div class="flex items-center">
-					<input type="checkbox" class="mr-3 h-5 w-5 rounded border-border" ${todo.status === "completed" ? "checked" : ""}>
-					<span class="${todo.status === "completed" ? "line-through text-text-secondary" : ""}">
-						${todo.task}
-					</span>
-				</div>
-			</td>
-			<td class="p-4">
-				<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityClass}">
-					${todo.priority}
-				</span>
-			</td>
-			<td class="p-4 text-text">${todo.due_date}</td>
-			<td class="p-4">
-				<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
-					${todo.status.replace("_", " ")}
-				</span>
-			</td>
-			<td class="p-4">
-				<div class="flex space-x-2">...</div>
-			</td>
-		`
-
-		tbody.appendChild(tr)
-	})
 }
+
+function openTaskModal(isEdit = false) {
+    if (!isEdit && !currentGroupId) {
+        showToast("Please select a group first", "error");
+        return;
+    }
+	console.log("open modal", isEdit, currentGroupId);
+    document.getElementById("addTaskModal").classList.remove("hidden");
+}
+
+
+
+function closeTaskModal() {
+    document.getElementById("addTaskModal").classList.add("hidden");
+}
+
+async function createTask() {
+    const title = document.getElementById("taskTitle").value.trim();
+    const description = document.getElementById("taskDescription").value.trim();
+    const priority = document.getElementById("taskPriority").value;
+    const status = document.getElementById("taskStatus").value;
+    const deadline = document.getElementById("taskdeadline").value;
+    const groupId = document.getElementById("taskGroup").value;
+    
+    if (!title) {
+        showToast("Task name is required","error")
+        return;
+    }
+    
+    const params = new URLSearchParams();
+    params.append('action', 'createTask');
+    params.append('title', title);
+    params.append('description', description);
+    params.append('priority', priority);
+    params.append('status', status);
+    params.append('deadline', deadline);
+    params.append('group_id', groupId);
+    console.count("CREATE TASK CALLED");
+    try {
+        const res = await fetch("/todo/api/createTask", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: params
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            closeTaskModal();
+            getAllTask(currentGroupId); // Refresh tasks
+            showToast("Task created successfully","success")
+        } else {
+            showToast(data.error || "Error creating task");
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        showToast("Network error","error");
+    }
+}
+
+
+document.addEventListener("change", async function (e) {
+    if (!e.target.classList.contains("task-checkbox")) return;
+
+    const id = e.target.dataset.id;
+    console.log("clicked:", id);
+
+    const params = new URLSearchParams();
+    params.append("id", id);
+
+    const res = await fetch("/todo/api/toggleStatus", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: params
+    });
+
+    const data = await res.json();
+	// const text = await res.text();
+	// console.log(text);
+    if (!data.success) {
+        alert("Update failed");
+        return;
+    }
+
+    updateTaskUI(data.task); // hàm render lại đúng UI
+});
+
+function getPriorityClass(priority) {
+  return {
+    high: "badge badge-strong",
+    medium: "badge badge-medium",
+    low: "badge badge-soft"
+  }[priority] || "badge";
+}
+
+function getStatusClass(status) {
+  return {
+    pending: "badge badge-soft",
+    in_progress: "badge badge-medium",
+    completed: "badge badge-strong",
+    overdue: "badge badge-warr"
+  }[status] || "badge badge-warning";
+}
+
+function updateTaskUI(todo) {
+  const tr = document.querySelector(`tr[data-id="${todo.task_id}"]`);
+  if (!tr) return;
+
+  const priorityClass = getPriorityClass(todo.priority);
+  const statusClass = getStatusClass(todo.status);
+
+  tr.innerHTML = `
+      <td class="p-4">
+          <div data-id="${todo.task_id}" class="flex items-center">
+              <input data-id="${todo.task_id}"
+                  type="checkbox"
+                  class="task-checkbox mr-3 h-5 w-5 rounded border-border"
+                  ${todo.status === "completed" ? "checked" : ""}>
+              <span class="${todo.status === "completed" ? "line-through text-text-secondary" : ""}">
+                  ${todo.title}
+              </span>
+          </div>
+      </td>
+      <td class="p-4">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${priorityClass}">
+              ${todo.priority}
+          </span>
+      </td>
+      <td class="p-4 text-text">${todo.deadline}</td>
+      <td class="p-4">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
+              ${todo.status.replace("_", " ")}
+          </span>
+      	</td>
+      	<td class="p-4 relative">
+			<button class="task-action-btn" data-id="${todo.task_id}">⋯</button>
+
+			<ul class="task-menu hidden">
+				<li class="task-edit">Edit</li>
+				<li class="task-delete">Delete</li>
+			</ul>
+		</td>
+  `;
+
+  //changeStatusClick(); // gắn lại event
+}
+
+document.addEventListener("click", function (e) {
+  // đóng tất cả menu trước
+  document.querySelectorAll(".task-menu").forEach(m => m.classList.add("hidden"));
+
+  // nếu click vào nút ...
+  if (e.target.classList.contains("task-action-btn")) {
+    const menu = e.target.nextElementSibling;
+    menu.classList.toggle("hidden");
+    e.stopPropagation();
+  }
+
+  // delete
+  if (e.target.classList.contains("task-delete")) {
+    const id = e.target.closest("td").querySelector(".task-action-btn").dataset.id;
+    console.log("Delete:", id);
+  }
+
+  // edit
+  if (e.target.classList.contains("task-edit")) {
+    const id = e.target.closest("td").querySelector(".task-action-btn").dataset.id;
+    console.log("Edit:", id);
+  }
+});
+
+document.addEventListener("click", async function (e) {
+
+  if (!e.target.classList.contains("task-delete")) return;
+
+  const btn = e.target.closest("td").querySelector(".task-action-btn");
+  const id = btn.dataset.id;
+
+  if (!confirm("Delete this task?")) return;
+
+  const params = new URLSearchParams();
+  params.append("id", id);
+
+  const res = await fetch("/todo/api/deleteTask", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params
+  });
+
+  const data = await res.json();
+
+  if (!data.success) {
+    showToast("Delete failed","error")
+    return;
+  }
+
+  // xoá UI luôn, không cần reload
+  document.querySelector(`tr[data-id="${id}"]`)?.remove();
+});
+
+document.addEventListener("click", async (e) => {
+  const editBtn = e.target.closest(".task-edit");
+  if (!editBtn) return;
+
+  const taskId = editBtn.dataset.id;
+  console.log("EDIT CLICK:", taskId);
+
+  const res = await fetch(`/todo/api/task/detail?id=${taskId}`);
+  const json = await res.json();
+
+  if (!json.success) {
+    showToast(json.error, "error");
+    return;
+  }
+
+  const task = json.task;
+
+  editingTaskId = taskId;
+
+  taskTitle.value = task.title ?? "";
+  taskDescription.value = task.description ?? "";
+  taskPriority.value = task.priority ?? "medium";
+  taskdeadline.value = task.deadline ? task.deadline.slice(0,10) : "";
+  taskStatus.value = task.status ?? "pending";
+  taskGroup.value = task.group_id ?? "";
+
+  submitTaskBtn.textContent = "Save";
+
+  openEditModal(taskId);
+});
+
+
+
+async function updateTask(id) {
+  const params = new URLSearchParams();
+  params.append("id", id);
+  params.append("title", taskTitle.value);
+  params.append("description", taskDescription.value);
+  params.append("priority", taskPriority.value);
+  params.append("deadline", taskdeadline.value);
+  params.append("status", taskStatus.value);
+  params.append("group_id", taskGroup.value);
+
+  const res = await fetch("/todo/api/updateTask", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params
+  });
+
+  const data = await res.json();
+
+  if (!data.success) {
+    showToast(data.error, "error");
+    return;
+  }
+
+  closeTaskModal();
+  getAllTask(currentGroupId);
+}
+
+
+
+let editingTaskId = null;
+
+const modal = document.getElementById("addTaskModal");
+const submitBtn = document.getElementById("submitTaskBtn");
+
+// ===== OPEN MODAL FOR CREATE =====
+function openAddModal() {
+  if (!currentGroupId) {
+    showToast("Please select a group first", "error");
+    return;
+  }
+
+  editingTaskId = null;
+
+  taskTitle.value = "";
+  taskDescription.value = "";
+  taskPriority.value = "medium";
+  taskdeadline.value = "";
+  taskStatus.value = "pending";
+  taskGroup.value = currentGroupId;
+
+  submitBtn.textContent = "Create Task";
+
+  modal.classList.remove("hidden");
+}
+
+// ===== OPEN MODAL FOR EDIT =====
+async function openEditModal(taskId) {
+  const res = await fetch(`/todo/api/task/detail?id=${taskId}`);
+  const json = await res.json();
+
+  if (!json.success) {
+    showToast(json.error, "error");
+    return;
+  }
+
+  const task = json.task;
+  editingTaskId = taskId;
+
+  taskTitle.value = task.title ?? "";
+  taskDescription.value = task.description ?? "";
+  taskPriority.value = task.priority ?? "medium";
+  taskdeadline.value = task.deadline ? task.deadline.slice(0,10) : "";
+  taskStatus.value = task.status ?? "pending";
+  taskGroup.value = task.group_id ?? currentGroupId;
+
+  submitBtn.textContent = "Save";
+
+  modal.classList.remove("hidden");
+}
+
+// ===== CLOSE MODAL =====
+function closeTaskModal() {
+  modal.classList.add("hidden");
+}
+
+// ===== SUBMIT BUTTON =====
+submitBtn.addEventListener("click", async () => {
+  if (editingTaskId) {
+    await updateTask(editingTaskId);
+  } else {
+    await createTask();
+  }
+});
+
+
+document.addEventListener("click", e => {
+  console.log("clicked element:", e.target);
+});

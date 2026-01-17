@@ -66,7 +66,7 @@ public function updateGroup() {
 
     $model = new Todolistgroup();
     $group = $model->update($id,['title'=> $title]);
-    $this->json((bool)$group,null, ["group" => $group]);
+    $this->json((bool)$group,null);
 }
 
 public function deleteGroup() {
@@ -84,16 +84,178 @@ public function deleteGroup() {
 }
 
 public function getAllTask() {
-    $id = $_POST['groupId'] ?? "";
+    $id = $_GET['groupId'] ?? "";
 
     if ($id === "") {
         $this->json(false, "Thiếu gropu id"); return;
     }
 
     $model = new Task();
-    $task = $model->getAllTaskByGroupId($id);
-    $this->json((bool)$task,null,["task" => $task]);
+    $model->markOverdueByGroup($id);   // update overdue một lần
+    $tasks = $model->getAllTaskByGroupId($id);
+     if ($tasks === false) {
+        $this->json(false, "Error loading tasks");
+        return;
+    }
+    $this->json(true,null,["tasks" => $tasks]);
 }
+
+public function createTask() {
+    header('Content-Type: application/json');
+    
+    if (session_status() === PHP_SESSION_NONE) session_start();
+    
+    if (!isset($_SESSION['user_id'])) {
+        $this->json(false, "Unauthorized"); 
+        return;
+    }
+    
+    // Nhận dữ liệu
+    $title = trim($_POST['title'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $priority = $_POST['priority'] ?? 'medium';
+    $status = $_POST['status'] ?? 'pending';
+    $dueDate = $_POST['deadline'] ?? null;
+    $groupId = $_POST['group_id'] ?? null;
+    
+    // Validate
+    if (empty($title)) {
+        $this->json(false, "Task name is required");
+        return;
+    }
+    
+    if (empty($groupId)) {
+        $this->json(false, "Group ID is required");
+        return;
+    }
+    
+    // Chuẩn bị data
+    $taskData = [
+        'task' => $title,
+        'description' => $description,
+        'priority' => $priority,
+        'status' => $status,
+        'group_id' => $groupId
+    ];
+    
+    if (!empty($dueDate)) {
+        $taskData['deadline'] = $dueDate;
+    }
+    
+    // Tạo task
+    $model = new Task();
+    $task = $model->createTask($taskData); // Gọi createTask() thay vì create()
+    
+    if ($task) {
+        $this->json(true, null, ["task" => $task]);
+    } else {
+        $this->json(false, "Failed to create task");
+    }
+}
+
+public function toggleStatus() {
+    $id = $_POST['id'] ?? null;
+    if (!$id) {
+        $this->json(false, "Missing id");
+        return;
+    }
+
+    $model = new Task();
+    $task = $model->toggleStatus($id);
+    
+    if (!$task) {
+        $this->json(false, "Update failed");
+        return;
+    }
+
+    $this->json(true, null, ["task" => $task]);
+}
+
+
+public function deleteTask() {
+    header('Content-Type: application/json');
+
+    $id = $_POST['id'] ?? null;
+    if (!$id) {
+        $this->json(false, "Missing id");
+        return;
+    }
+
+    $model = new Task();
+    $ok = $model->softDelete($id);
+
+    if ($ok) {
+        $this->json(true, null);
+    } else {
+        $this->json(false, "Delete failed");
+    }
+}
+
+public function getTaskById()
+{
+    $id = $_GET['taskId'] ?? null;
+
+    if (!$id) {
+        $this->json(false, "Missing taskId");
+        return;
+    }
+
+    $model = new Task();
+    $task = $model->getTaskByTaskId($id);
+
+    if (!$task) {
+        $this->json(false, "Task not found");
+        return;
+    }
+
+    $this->json(true, null, ["task" => $task]);
+}
+
+public function getTaskDetail() {
+    $id = $_GET['id'] ?? null;
+
+    if (!$id) {
+        $this->json(false, "Missing task id");
+        return;
+    }
+
+    $model = new Task();
+    $task = $model->getTaskByTaskId($id);
+
+    if (!$task) {
+        $this->json(false, "Task not found");
+        return;
+    }
+
+    $this->json(true, null, ["task" => $task]);
+}
+
+
+public function updateTask()
+{
+    $id = $_POST['id'] ?? null;
+    if (!$id) {
+        $this->json(false, "Missing id");
+        return;
+    }
+
+    $data = [
+        'title'       => $_POST['title'] ?? '',
+        'description' => $_POST['description'] ?? '',
+        'priority'    => $_POST['priority'] ?? 'medium',
+        'deadline'    => $_POST['deadline'] ?? null,
+        'status'      => $_POST['status'] ?? 'pending',
+        'group_id'    => $_POST['group_id'] ?? null
+    ];
+
+    $model = new Task();
+    $model->update($id, $data);
+
+    $task = $model->getTaskByTaskId($id);
+
+    $this->json(true, null, ["task" => $task]);
+}
+
 
 private function json($success, $error = null, $extra = [])
 {

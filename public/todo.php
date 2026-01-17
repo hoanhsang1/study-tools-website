@@ -101,10 +101,19 @@ ob_start();
 
 
 <!-- Todo List -->
-<div style="height: 417px;" class="card">
+<div style="height: 417px; overflow: visible;" class="card">
+    <div class="card-header">
+        <h3 class="card-title">Tasks</h3>
+        <button class="btn btn-primary" onclick="openAddModal()"> <!-- onclick="openTaskModal()" -->
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" class="mr-2">
+                <path d="M8 3V13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M3 8H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>Create Task</button>
+    </div>
+    
     <div class="overflow-x-auto">
         <table class="w-full">
-            <thead>
+            <thead class="task-header-table">
                 <tr class="border-b border-border">
                     <th class="text-left p-4 text-text-secondary text-sm font-medium">Task</th>
                     <th class="text-left p-4 text-text-secondary text-sm font-medium">Priority</th>
@@ -113,10 +122,15 @@ ob_start();
                     <th class="text-left p-4 text-text-secondary text-sm font-medium">Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                
-            </tbody>
         </table>
+        <div class="table-scroll">
+            <table class="w-full">
+                <tbody class="content_task">
+                    
+                </tbody>
+
+            </table>
+        </div>
     </div>
 </div>
 
@@ -140,7 +154,74 @@ ob_start();
   </div>
 </div>
 
-
+<!-- Add Task Modal -->
+<div id="addTaskModal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeTaskModal()"></div>
+    <div class="modal-card" style="max-width: 500px;">
+        <h3 class="modal-title">Add New Task</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="form-label">Task Name *</label>
+                <input 
+                    type="text" 
+                    id="taskTitle"
+                    placeholder="Enter task name..."
+                    class="modal-input"
+                    required
+                />
+            </div>
+            <div>
+                <label class="form-label">Description</label>
+                <textarea 
+                    id="taskDescription"
+                    placeholder="Enter task description..."
+                    class="modal-input"
+                    rows="3"
+                ></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="form-label">Priority</label>
+                    <select id="taskPriority" class="modal-input">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">Due Date</label>
+                    <input 
+                        type="date" 
+                        id="taskdeadline"
+                        class="modal-input"
+                    />
+                </div>
+            </div>
+            <div>
+                <label class="form-label">Status</label>
+                <select id="taskStatus" class="modal-input">
+                    <option value="pending" selected>Pending</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+            <div>
+                <label class="form-label">Group</label>
+                <select id="taskGroup" class="modal-input">
+                    <?php foreach ($allGroups as $group): ?>
+                    <option value="<?= htmlspecialchars($group['group_id']) ?>">
+                        <?= htmlspecialchars($group['title']) ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions mt-6">
+            <button type="button" onclick="closeTaskModal()" class="btn-ghost">Cancel</button>
+            <button type="button" id="submitTaskBtn" class="btn-primary">Create Task</button>
+        </div>
+    </div>
+</div>
 
 <?php
 
