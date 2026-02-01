@@ -1,8 +1,3 @@
-<?php
-// $avatarPath = $data['avatarPath'] ?? null;
-
-?>
-
 <!-- ==================== -->
 <!--     PAGE CONTENT     -->
 <!-- ==================== -->
@@ -82,6 +77,69 @@
 .avatar-container:hover .avatar-overlay {
     opacity: 1;
 }
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #111827;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
 </style>
 
 <div class="space-y-6">
@@ -100,7 +158,7 @@
                                 class="w-full h-full rounded-full object-cover"
                                 id="avatarImage">
                         <?php else: ?>
-                            <span id="avatarInitial"><?php echo strtoupper(substr($_SESSION['fullname'] ?? $_SESSION['username'] ?? 'U', 0, 1)); ?></span>
+                            <span id="avatarInitial"><?php echo strtoupper(substr($userData['fullname'] ?? $userData['username'] ?? 'U', 0, 1)); ?></span>
                         <?php endif; ?>
                         
                         <!-- Form upload -->
@@ -132,20 +190,18 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                         <div class="min-w-0">
-                            <h1 class="text-2xl font-bold text-text truncate"><?php echo htmlspecialchars($_SESSION['fullname'] ?? $_SESSION['username']); ?></h1>
+                            <h1 class="text-2xl font-bold text-text truncate"><?php echo htmlspecialchars($userData['fullname'] ?? $userData['username']); ?></h1>
                             <div class="flex items-center gap-2 text-text-secondary text-sm mt-1">
-                                <span class="truncate">@<?php echo htmlspecialchars($_SESSION['username']); ?></span>
+                                <span class="truncate">@<?php echo htmlspecialchars($userData['username']); ?></span>
                                 <span>•</span>
-                                <span class="truncate"><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></span>
+                                <span class="truncate"><?php echo htmlspecialchars($userData['email'] ?? ''); ?></span>
                             </div>
                         </div>
                         
                         <div class="flex flex-wrap gap-2 shrink-0">
-                            <span class="badge badge-primary px-3 py-1"><?php echo htmlspecialchars(ucfirst($_SESSION['role'] ?? 'free')); ?> Plan</span>
-                            <button class="btn btn-secondary px-4 py-2 text-sm">
-                                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" class="mr-2">
-                                    <path d="M11.3333 2.00001C11.5084 1.82492 11.7163 1.68601 11.9452 1.59075C12.1741 1.4955 12.4197 1.44568 12.668 1.44401C12.9162 1.44234 13.1625 1.48884 13.3928 1.58091C13.6232 1.67298 13.8331 1.80886 14.0107 1.98093C14.1882 2.153 14.3299 2.35777 14.4275 2.58352C14.5251 2.80926 14.5765 3.05152 14.5787 3.29668C14.5809 3.54185 14.5339 3.78501 14.4403 4.01237C14.3467 4.23973 14.2083 4.44684 14.0333 4.62223L6.59999 12L2.66666 13.3333L3.99999 9.40001L11.3333 2.00001Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                            <span class="badge badge-primary px-3 py-1"><?php echo htmlspecialchars(ucfirst($userData['role'] ?? 'free')); ?> Plan</span>
+                            <button onclick="openEditModal()" class="btn btn-secondary px-4 py-2 text-sm">
+                                <i class="fas fa-edit mr-2"></i>
                                 Edit Profile
                             </button>
                         </div>
@@ -160,7 +216,7 @@
                                     <path d="M8 4V8L10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                                 </svg>
                                 <span>Member since:</span>
-                                <span class="font-medium text-text"><?php echo date('F j, Y', strtotime($_SESSION['created_at'] ?? 'now')); ?></span>
+                                <span class="font-medium text-text"><?php echo date('F j, Y', strtotime($userData['created_at'] ?? 'now')); ?></span>
                             </div>
                             <div class="flex items-center gap-2 text-text-secondary">
                                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
@@ -190,13 +246,13 @@
                         <div class="form-group">
                             <label class="form-label">Full Name</label>
                             <div class="form-control bg-bg-input border-border px-4 py-3 rounded-md">
-                                <?php echo htmlspecialchars($_SESSION['fullname'] ?? 'Not set'); ?>
+                                <?php echo htmlspecialchars($userData['fullname'] ?? 'Not set'); ?>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Username</label>
                             <div class="form-control bg-bg-input border-border px-4 py-3 rounded-md">
-                                @<?php echo htmlspecialchars($_SESSION['username']); ?>
+                                @<?php echo htmlspecialchars($userData['username']); ?>
                             </div>
                         </div>
                     </div>
@@ -204,7 +260,7 @@
                     <div class="form-group">
                         <label class="form-label">Email Address</label>
                         <div class="form-control bg-bg-input border-border px-4 py-3 rounded-md">
-                            <?php echo htmlspecialchars($_SESSION['email'] ?? 'Not set'); ?>
+                            <?php echo htmlspecialchars($userData['email'] ?? 'Not set'); ?>
                         </div>
                     </div>
                     
@@ -212,13 +268,13 @@
                         <div class="form-group">
                             <label class="form-label">Account Type</label>
                             <div class="form-control bg-bg-input border-border px-4 py-3 rounded-md">
-                                <?php echo htmlspecialchars(ucfirst($_SESSION['role'] ?? 'free')); ?> Account
+                                <?php echo htmlspecialchars(ucfirst($userData['role'] ?? 'free')); ?> Account
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Member Since</label>
                             <div class="form-control bg-bg-input border-border px-4 py-3 rounded-md">
-                                <?php echo date('F j, Y', strtotime($_SESSION['created_at'] ?? 'now')); ?>
+                                <?php echo date('F j, Y', strtotime($userData['created_at'] ?? 'now')); ?>
                             </div>
                         </div>
                     </div>
@@ -226,38 +282,94 @@
             </div>
         </div>
 
-        <!-- Account Stats -->
-        <div>
-            <div class="card h-full">
-                <div class="card-header">
-                    <h2 class="card-title">Account Stats</h2>
-                </div>
-                <div class="space-y-4 p-6">
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-bg-input/50">
-                        <div class="text-text-secondary text-sm">Total Study Time</div>
-                        <div class="font-bold text-text">48h 30m</div>
+        
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal flex_full justify-center modal-overlay">
+    <div class="modal-content modal-card" style="overflow: hidden;">
+        <div class="modal-header">
+            <h3>Edit Profile</h3>
+            <button class="modal-close" onclick="closeEditModal()">&times;</button>
+        </div>
+        <form id="editProfileForm" action="/profile/update" method="POST" class="scroll" style="overflow-y: auto;
+    height: 73vh;">
+            <div class="modal-body">
+                <div class="space-y-4">
+                    <div class="form-group">
+                        <label class="form-label" for="fullname">Full Name</label>
+                        <input type="text" 
+                               id="fullname" 
+                               name="fullname" 
+                               value="<?php echo htmlspecialchars($userData['fullname'] ?? ''); ?>"
+                               class="modal-input form-input w-full"
+                               placeholder="Enter your full name">
                     </div>
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-bg-input/50">
-                        <div class="text-text-secondary text-sm">Tasks Completed</div>
-                        <div class="font-bold text-text">156</div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="email">Email Address</label>
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               value="<?php echo htmlspecialchars($userData['email'] ?? ''); ?>"
+                               class="modal-input form-input w-full"
+                               placeholder="Enter your email address">
                     </div>
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-bg-input/50">
-                        <div class="text-text-secondary text-sm">Current Streak</div>
-                        <div class="font-bold text-text">7 days</div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="username">Username</label>
+                        <input type="text" 
+                               id="username" 
+                               name="username" 
+                               value="<?php echo htmlspecialchars($userData['username'] ?? ''); ?>"
+                               class="modal-input form-input w-full"
+                               placeholder="Enter username">
                     </div>
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-bg-input/50">
-                        <div class="text-text-secondary text-sm">Flashcards Mastered</div>
-                        <div class="font-bold text-text">89</div>
-                    </div>
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-bg-input/50">
-                        <div class="text-text-secondary text-sm">Habits Tracked</div>
-                        <div class="font-bold text-text">12</div>
+                    
+                    <div class="pt-4 border-t border-gray-200">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Change Password</h4>
+                        <div class="space-y-3">
+                            <div class="form-group">
+                                <label class="form-label" for="current_password">Current Password</label>
+                                <input type="password" 
+                                       id="current_password" 
+                                       name="current_password"
+                                       class="modal-input form-input w-full"
+                                       placeholder="Enter current password">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="new_password">New Password</label>
+                                <input type="password" 
+                                       id="new_password" 
+                                       name="new_password"
+                                       class="modal-input form-input w-full"
+                                       placeholder="Enter new password">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="confirm_password">Confirm New Password</label>
+                                <input type="password" 
+                                       id="confirm_password" 
+                                       name="confirm_password"
+                                       class="modal-input form-input w-full"
+                                       placeholder="Confirm new password">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
     </div>
 </div>
+
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -266,37 +378,104 @@ document.addEventListener('DOMContentLoaded', function() {
     const avatarForm = document.getElementById('avatarForm');
     
     // Click vào avatar để chọn file
-    avatarContainer.addEventListener('click', function() {
-        avatarInput.click();
-    });
+    if (avatarContainer) {
+        avatarContainer.addEventListener('click', function() {
+            avatarInput.click();
+        });
+    }
     
-    // Khi chọn file
-    avatarInput.addEventListener('change', function(e) {
-        if (this.files && this.files[0]) {
-            // Hiển thị preview
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const avatarImage = document.getElementById('avatarImage');
-                const avatarInitial = document.getElementById('avatarInitial');
+    // Khi chọn file avatar
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                // Hiển thị preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const avatarImage = document.getElementById('avatarImage');
+                    const avatarInitial = document.getElementById('avatarInitial');
+                    
+                    if (avatarImage) {
+                        avatarImage.src = e.target.result;
+                    } else {
+                        // Tạo img nếu chưa có
+                        if (avatarInitial) avatarInitial.remove();
+                        avatarContainer.querySelector('.profile_avatar').innerHTML = 
+                            `<img src="${e.target.result}" alt="Preview" class="w-full h-full rounded-full object-cover" id="avatarImage">`;
+                    }
+                    
+                    // Hiển thị loading text
+                    const overlay = avatarContainer.querySelector('.avatar-overlay');
+                    if (overlay) {
+                        overlay.innerHTML = '<span><i class="fas fa-spinner fa-spin mr-2"></i>Uploading...</span>';
+                    }
+                };
+                reader.readAsDataURL(this.files[0]);
                 
-                if (avatarImage) {
-                    avatarImage.src = e.target.result;
-                } else {
-                    // Tạo img nếu chưa có
-                    if (avatarInitial) avatarInitial.remove();
-                    avatarContainer.querySelector('.profile_avatar').innerHTML = 
-                        `<img src="${e.target.result}" alt="Preview" class="w-full h-full rounded-full object-cover" id="avatarImage">`;
-                }
-                
-                // Hiển thị loading text
-                const overlay = avatarContainer.querySelector('.avatar-overlay');
-                overlay.innerHTML = '<span>Đang tải lên...</span>';
-            };
-            reader.readAsDataURL(this.files[0]);
+                // Submit form
+                avatarForm.submit();
+            }
+        });
+    }
+    editProfileForm.addEventListener('scroll',(e)=>{
+        e.preventDefault();
+    })
+    // Form validation for edit profile
+    const editProfileForm = document.getElementById('editProfileForm');
+    if (editProfileForm) {
+        editProfileForm.addEventListener('submit', function(e) {
+            const newPassword = document.getElementById('new_password').value;
+            const confirmPassword = document.getElementById('confirm_password').value;
             
-            // Submit form
-            avatarForm.submit();
-        }
-    });
+            // Check if passwords match
+            if (newPassword && newPassword !== confirmPassword) {
+                e.preventDefault();
+                alert('New passwords do not match!');
+                return false;
+            }
+            
+            // Check password length
+            if (newPassword && newPassword.length < 6) {
+                e.preventDefault();
+                alert('New password must be at least 6 characters long!');
+                return false;
+            }
+            
+            // Show loading
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
 });
+
+// Modal functions
+function openEditModal() {
+    const modal = document.getElementById('editProfileModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editProfileModal');
+    if (modal) {
+        modal.style.display = 'none';
+        // Reset form loading state
+        const submitBtn = document.querySelector('#editProfileForm button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerHTML = 'Save Changes';
+            submitBtn.disabled = false;
+        }
+    }
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('editProfileModal');
+    if (event.target === modal) {
+        closeEditModal();
+    }
+}
 </script>

@@ -22,12 +22,14 @@ $router->get('/profile', 'App\Controllers\Web\ProfileController@index');
 $router->get('/settings', 'App\Controllers\Web\SettingsController@index');
 $router->get('/profile', 'App\Controllers\Web\ProfileController@index');
 $router->post('/profile/upload', 'App\Controllers\Web\ProfileController@upload');
+$router->post('/profile/update', 'App\Controllers\Web\ProfileController@update');
 $router->get('/pomodoro', 'App\Controllers\Web\PomodoroController@index');
 
 $router->get('/admin', 'App\Controllers\Web\AdminController@index');
 // Web routes
 $router->get('/flashcards', 'App\Controllers\Web\FlashcardController@index');
-
+// Habit Routes
+$router->get('/habit', 'App\Controllers\Web\HabitController@index');
 /* ================= API ================= */
 
 /* Calendar API */
@@ -63,6 +65,13 @@ $router->get('/pomodoro/api/stats', 'App\Controllers\Api\PomodoroController@getS
 $router->get('/flashcards/api', 'App\Controllers\Api\FlashcardController@handle');
 $router->post('/flashcards/api', 'App\Controllers\Api\FlashcardController@handle');
 
+// Habit API Routes
+$router->get('/habit/api/get', 'App\Controllers\Api\HabitController@getHabits');
+$router->post('/habit/api/create', 'App\Controllers\Api\HabitController@createHabit');
+$router->post('/habit/api/delete', 'App\Controllers\Api\HabitController@deleteHabit');
+$router->post('/habit/api/toggle', 'App\Controllers\Api\HabitController@toggleHabit');
+$router->get('/habit/api/stats', 'App\Controllers\Api\HabitController@getHabitStats');
+$router->post('/habit/api/update', 'App\Controllers\Api\HabitController@updateHabit');
 
 /* ================= ADMIN API ================= */
 $router->get('/admin/api', 'App\Controllers\Api\AdminController@handle');

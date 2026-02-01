@@ -959,7 +959,16 @@ class PomodoroApp {
     
     formatDate(dateString) {
         try {
-            const date = new Date(dateString);
+            let date;
+            if (dateString.includes('Z') || dateString.includes('+')) {
+                date = new Date(dateString);
+            } else {
+                // Giả sử database lưu UTC nhưng không có 'Z'
+                date = new Date(dateString + 'Z');
+            }
+        
+            // Adjust to local time
+            const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
             const now = new Date();
             const diffMs = now - date;
             const diffMins = Math.floor(diffMs / 60000);

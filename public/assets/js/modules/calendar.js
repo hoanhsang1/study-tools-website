@@ -458,35 +458,20 @@ getEventPositionInCell(event, cellDate) {
                                 ${(event.event_type || 'event').charAt(0).toUpperCase() + (event.event_type || 'event').slice(1)}
                             </span>
                         </div>
-                        <div class="flex space-x-2">
+                        <div class="flex gap-2 space-x-2">
                             ${(!event.status || event.status === 'scheduled') ? `
-                                <button class="complete-btn p-1 text-green-600 hover:text-green-800" 
+                                <button class="small-btn complete-btn p-1 text-green-600 hover:text-green-800" 
                                         data-event-id="${event.event_id}">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                        <path d="M13.3333 4L6 11.3333L2.66667 8" 
-                                            stroke="currentColor" stroke-width="2" 
-                                            stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
+                                    <i class="fa-solid fa-check"></i>
                                 </button>
                             ` : ''}
-                            <button class="edit-btn p-1 text-blue-600 hover:text-blue-800" 
+                            <button class="small-btn edit-btn p-1 text-blue-600 hover:text-blue-800" 
                                     data-event-id="${event.event_id}">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M11.3333 2.00001C11.5084 1.82491 11.7163 1.686 11.9452 1.59081C12.1741 1.49562 12.4198 1.44592 12.668 1.44446C12.9162 1.443 13.1624 1.48981 13.3924 1.58224C13.6224 1.67467 13.8316 1.81081 14.008 1.9829C14.1844 2.15499 14.3246 2.35965 14.4205 2.58505C14.5164 2.81044 14.566 3.05202 14.5663 3.29591C14.5666 3.5398 14.5176 3.7815 14.4222 4.00713C14.3268 4.23277 14.187 4.43777 14.011 4.61001L5.21867 13.4023L1.33333 14.6667L2.59767 10.7813L11.3333 2.00001Z" 
-                                        stroke="currentColor" stroke-width="2" 
-                                        stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                <i class="fa-regular fa-pen-to-square"></i>
                             </button>
-                            <button class="delete-btn p-1 text-red-600 hover:text-red-800" 
+                            <button class="small-btn delete-btn p-1 text-red-600 hover:text-red-800" 
                                     data-event-id="${event.event_id}">
-                                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                    <path d="M2 4H3.33333H14" 
-                                        stroke="currentColor" stroke-width="2" 
-                                        stroke-linecap="round" stroke-linejoin="round"/>
-                                    <path d="M5.33333 4V2.66667C5.33333 2.31305 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31305 1.33334 6.66667 1.33334H9.33333C9.68696 1.33334 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31305 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31305 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" 
-                                        stroke="currentColor" stroke-width="2" 
-                                        stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
+                                <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
                     </div>

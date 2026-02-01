@@ -35,6 +35,7 @@ class FlashcardController extends Controller
             'sets' => $sets,
             'total_sets' => count($sets),
             'page_css' => $page_css,
+            'show_breadcrumb' => true,
             'page_js' => $page_js
 
         ];

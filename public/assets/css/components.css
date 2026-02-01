@@ -407,3 +407,41 @@ select.form-control {
   background: #3a5bd9;
 }
 
+.small-btn {
+  background: #3d5ede;
+    border: none;
+    border-radius: 5px;
+    width: 30px;
+    height: 30px;
+    color: #fff;
+}
+
+.modal-input {
+  width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    outline: none;
+    font-size: 16px;
+    color: #2d3748;
+    transition: .15s;
+}
+
+.modal-overlay {
+        position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.modal-card {
+        position: relative;
+    width: 100%;
+    max-width: 520px;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
+    padding: 22px 24px 20px;
+    animation: modalScale .2s ease;
+}
