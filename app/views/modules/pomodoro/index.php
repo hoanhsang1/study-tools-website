@@ -21,7 +21,6 @@ ob_start();
 <div class="pomodoro-container">
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-text mb-2">🍅 Pomodoro Timer</h1>
         <p class="text-text-secondary">Focus for 25 minutes, break for 5. Repeat and be productive!</p>
     </div>
 

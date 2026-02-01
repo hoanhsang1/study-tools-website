@@ -2,7 +2,6 @@
     
     <!-- Header -->
     <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gradient mb-2">🧠 Flashcards</h1>
         <p class="text-text-secondary">Create and study flashcards to memorize important information</p>
     </div>
 

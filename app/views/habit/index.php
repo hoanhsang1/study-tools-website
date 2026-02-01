@@ -1,9 +1,6 @@
 <div class="container mx-auto px-4 py-6">
     <!-- Page Header -->
     <div class="mb-8">
-        <h1 class="text-3xl md:text-4xl font-bold text-text mb-2">
-            <span class="text-gradient">Habit Tracker</span>
-        </h1>
         <p class="text-text-secondary text-lg">Build consistency with daily habits</p>
     </div>
 
