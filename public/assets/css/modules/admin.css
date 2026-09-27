@@ -70,6 +70,13 @@
     border-radius: 12px;
     padding: 1.5rem;
     box-shadow: var(--shadow-md);
+     min-width: 0;
+}
+
+.chart-wrapper {
+    position: relative;
+    height: 300px;
+    width: 100%;
 }
 
 .chart-title {

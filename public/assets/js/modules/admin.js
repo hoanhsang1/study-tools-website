@@ -181,6 +181,7 @@ function createStudyTimeChart(dailyStats) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
@@ -229,6 +230,7 @@ function createActivityChart(dailyStats) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
@@ -953,6 +955,7 @@ function createTopUsersChart(topUsers) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
@@ -1222,6 +1225,7 @@ function createDailyActivityChart(dailyActivity) {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             interaction: {
                 mode: 'index',
                 intersect: false

@@ -9,6 +9,7 @@
         private $username;
         private $password;
         private $charset;
+        private $port;
 
         private function __construct() {
             // GÁN GIÁ TRỊ TRONG CONSTRUCTOR
@@ -16,6 +17,7 @@
             $this->dbname = Env::get('DB_NAME', 'StudyHub');
             $this->username = Env::get('DB_USER', 'root');
             $this->password = Env::get('DB_PASS', '');
+            $this->port = Env::get('DB_PORT', 3306);
             $this->charset = Env::get('DB_CHARSET', 'utf8mb4');
             
             $this->connect();
@@ -24,7 +26,7 @@
         public function connect() {
             try {
                 $this->conn = new PDO(
-                    "mysql:host={$this->host};dbname={$this->dbname};charset={$this->charset}",
+                    "mysql:host={$this->host};port={$this->port};dbname={$this->dbname};charset={$this->charset}",
                     $this->username,
                     $this->password,
                     [

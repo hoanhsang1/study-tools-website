@@ -22,11 +22,17 @@
             <div class="charts-grid">
                 <div class="chart-container">
                     <h3 class="chart-title">Daily Study Time (Last 7 Days)</h3>
-                    <canvas id="studyTimeChart"></canvas>
+                    <div class="chart-wrapper">
+
+                        <canvas id="studyTimeChart"></canvas>
+                    </div>
                 </div>
                 <div class="chart-container">
                     <h3 class="chart-title">User Activity</h3>
-                    <canvas id="activityChart"></canvas>
+                    <div class="chart-wrapper">
+
+                        <canvas id="activityChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -95,7 +101,10 @@
             
             <div class="chart-container mb-6">
                 <h3 class="chart-title">Top Users by Study Time</h3>
-                <canvas id="topUsersChart"></canvas>
+                <div class="chart-wrapper">
+
+                    <canvas id="topUsersChart"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -122,7 +131,10 @@
         <div id="activity-content" style="display: none;">
             <div class="chart-container mb-6">
                 <h3 class="chart-title">Daily Activity Overview</h3>
-                <canvas id="dailyActivityChart"></canvas>
+                <div class="chart-wrapper">
+
+                    <canvas id="dailyActivityChart"></canvas>
+                </div>
             </div>
             
             <div class="admin-table-container">
