@@ -263,6 +263,10 @@ body {
     display: block;
 }
 
+.eye {
+    left: -6px !important;
+}
+
 /* Checkbox */
 .checkbox-group {
     display: flex;
