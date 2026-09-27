@@ -234,6 +234,7 @@ class CalendarApp {
                 const eventEndDate = event.end_at ? event.end_at.split(' ')[0] : eventStartDate;
                 
                 // Kiểm tra nếu cellDate nằm trong khoảng event
+                 // new Date("2023-12-15") → 1702602000000 (timestamp)
                 const cellDateTime = new Date(cellDate).getTime();
                 const startDateTime = new Date(eventStartDate).getTime();
                 const endDateTime = new Date(eventEndDate).getTime();
