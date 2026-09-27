@@ -12,6 +12,7 @@
 .d-none { display: none !important; }
 
 /* Flexbox Utilities */
+.flex {display: flex;}
 .flex-row { flex-direction: row !important; }
 .flex-col { flex-direction: column !important; }
 .flex-wrap { flex-wrap: wrap !important; }
@@ -169,6 +170,8 @@
 .pr-6 { padding-right: var(--space-6) !important; }
 .pr-8 { padding-right: var(--space-8) !important; }
 
+/* Height */
+.h-47 { height: 47px !important;}
 /* Text Utilities */
 .text-left { text-align: left !important; }
 .text-center { text-align: center !important; }
@@ -280,6 +283,7 @@
 .w-screen { width: 100vw !important; }
 .w-min { width: min-content !important; }
 .w-max { width: max-content !important; }
+.w-25 {width: 25% !important;}
 
 .h-full { height: 100% !important; }
 .h-screen { height: 100vh !important; }

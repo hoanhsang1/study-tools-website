@@ -74,4 +74,24 @@ document.addEventListener('DOMContentLoaded', function() {
             link.classList.remove('active');
         }
     });
+
+    
 });
+
+function showToast(message, type = 'error', duration = 3000) {
+        const container = document.getElementById('app-toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = `app-toast ${type}`;
+        toast.textContent = message;
+
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'toast-out 0.25s ease forwards';
+            toast.addEventListener('animationend', () => {
+            toast.remove();
+            });
+        }, duration);
+        }

@@ -1,5 +1,5 @@
 <?php
-namespace App\Core\Model;
+namespace App\Core;
 
 use PDO;
 use PDOException;
@@ -79,6 +79,12 @@ class Model
         $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE {$this->primaryKey} = ?");
         return $stmt->execute([$id]);
     }
+
+    public function softDelete($id)
+    {
+        $stmt = $this->db->prepare("UPDATE {$this->table} SET is_deleted = 1 WHERE {$this->primaryKey} = ?");
+        return $stmt->execute([$id]);
+    }
     
     public function query($sql, $params = [])
     {
@@ -100,5 +106,19 @@ class Model
     public function rollback()
     {
         return $this->db->rollBack();
+    }
+
+    protected function generateUuid()
+    {
+        if (function_exists('com_create_guid') === true) {
+            return trim(com_create_guid(), '{}');
+        }
+        
+        // Fallback
+        $data = openssl_random_pseudo_bytes(16);
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+        
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 }
